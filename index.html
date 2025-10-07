@@ -284,7 +284,7 @@
             title: {
                 //text: 'Luftdruck'
             },
-            opposite: false,
+            opposite: true,
             id: 'P'
     }],
 		exporting: {
@@ -297,7 +297,13 @@
         }
 		},
 		legend: {
-		  enabled: true
+		  enabled: true,
+                  symbolHeight: 20,    // Höhe der Legenden-Symbole
+                  symbolWidth: 20,     // Breite der Legenden-Symbole
+                  symbolPadding: 10,   // Abstand zwischen Symbol und Text
+                  itemStyle: {
+                    fontSize: '18px'   // Schriftgröße der Legenden-Einträge
+                    }
 		},
     navigator: {
       baseSeries: 0,  //select which series to show in history navigator, First series is 0
@@ -487,7 +493,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 }
 
   </script>
-    <title>>Wetterstation üdB Hochspeyer</title>
+    <title>Wetterstation üdB Hochspeyer</title>
   </head>
   <body style="                      background-color: white;">
     <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial;">
@@ -572,6 +578,3 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     
     
 </html>
-
-
-
