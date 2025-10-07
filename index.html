@@ -521,7 +521,7 @@ function updateWeatherEmoji() {
         emoji = "🌤️"; // Mild/Sonnig
     }
 
-    document.getElementById("header-title").innerHTML = `Wetterstation üdB Hochspeyer ${emoji}`;
+    document.getElementById("header-title").innerHTML = `Wetterstation üdB ${emoji}`;
 }
 
 // === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
@@ -669,10 +669,21 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     <title>Wetterstation üdB Hochspeyer</title>
   </head>
   <body style="                      background-color: white;">
-    <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 2.5em;">
-      <span id="header-title">Wetterstation üdB Hochspeyer</span>
-      <span id="clock" style="font-size: 0.6em; font-weight: bold; color: #333;"></span>
+    <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 3.5em;">
+      <span id="header-title">Wetterstation üdB</span>
+      <span id="clock" style="font-size: 0.4em; font-weight: bold; color: #333;"></span>
     </h1>
+    
+    <p style="
+  font-size: 1em; 
+  color: #666; 
+  margin-top: -5px; 
+  display: flex; 
+  justify-content: space-between;
+">
+  <span>📍 Hochspeyer, Rheinland-Pfalz — 280 m ü. NN</span>
+  <span>ESP8266 D1 mini pro, BME280 & MISOL Regenmesser </span>
+</p>
 
     
     <div id="current-values" style="font-family: Arial; margin-bottom: 20px; gap: 20px;">
