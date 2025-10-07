@@ -669,9 +669,9 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     <title>Wetterstation üdB Hochspeyer</title>
   </head>
   <body style="                      background-color: white;">
-    <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial;">
+    <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 2.5em;">
       <span id="header-title">Wetterstation üdB Hochspeyer</span>
-      <span id="clock" style="font-size: 1.2em; font-weight: bold; color: #333;"></span>
+      <span id="clock" style="font-size: 0.6em; font-weight: bold; color: #333;"></span>
     </h1>
 
     
@@ -685,6 +685,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     </div>
     
     <div id="buttons-container" style="margin-top:10px;"></div>
+    <div style="height:20px;"></div>
     
     <div id="below chart"> <button style="width: 110px; margin-top: -18px;" value="Hide All"
         name="Hide All Button"
@@ -714,6 +715,14 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
       <input id="Update" name="Update" type="checkbox" checked><span style="font-family: Arial;">Daten automatisch nachladen</span> 
       <span id="Latency" style="font-family: Arial;">(Latency)</span>
     </div>
+    
+    <div style="height:20px;"></div>
+    
+<a class="weatherwidget-io" href="https://forecast7.com/de/49d447d90/hochspeyer/" data-label_1="HOCHSPEYER" data-label_2="WEATHER" data-font="Roboto" data-icons="Climacons Animated" data-mode="Forecast" data-theme="pure" >HOCHSPEYER WEATHER</a>
+<script>
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+</script>
+   
   </body>
       <style>
       #current-values {
@@ -749,6 +758,11 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
         font-weight: bold;
         color: #333;
       }
-
+  
+      /* --- Untere Steuerzeile ausblenden --- */
+      #below\ chart {
+        display: none !important;
+      }
+      
     </style>
 </html>
