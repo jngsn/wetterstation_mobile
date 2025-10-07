@@ -107,6 +107,12 @@
 	 })
    .fail(function() { alert('getJSON request failed! '); });
  }
+ 
+ function startWeatherEmojiUpdater() {
+    updateWeatherEmoji();               // Sofort das aktuelle Emoji setzen
+    setInterval(updateWeatherEmoji, 60000); // Dann jede Minute aktualisieren
+  }
+
  // create the chart when all data is loaded
  function createChart() {
 	// specify the chart options
@@ -284,7 +290,7 @@
             title: {
                 //text: 'Luftdruck'
             },
-            opposite: true,
+            opposite: false,
             id: 'P'
     }],
 		exporting: {
@@ -297,13 +303,7 @@
         }
 		},
 		legend: {
-		  enabled: true,
-                  symbolHeight: 20,    // Höhe der Legenden-Symbole
-                  symbolWidth: 20,     // Breite der Legenden-Symbole
-                  symbolPadding: 10,   // Abstand zwischen Symbol und Text
-                  itemStyle: {
-                    fontSize: '25px'   // Schriftgröße der Legenden-Einträge
-                    }
+		  enabled: true
 		},
     navigator: {
       baseSeries: 0,  //select which series to show in history navigator, First series is 0
@@ -366,7 +366,10 @@
       }
     )(channelIndex);
   }
+  // Emoji-Updater starten
+    startWeatherEmojiUpdater();
  }
+ 
 });
 
 // === Aktuelle Uhrzeit und Datum rechts oben anzeigen ===
@@ -427,6 +430,64 @@ function updateCurrentValues() {
   }
 }
 
+function updateWeatherEmoji() {
+    const channel = channelKeys[0]; // erster Kanal
+
+    // Feste Felder abrufen
+    const tempField = channel.fieldList.find(f => f.field === 1);
+    const humField = channel.fieldList.find(f => f.field === 2);
+    const pressureField = channel.fieldList.find(f => f.field === 8);
+
+    // Prüfen, ob die Felder existieren und Daten enthalten
+    if (!tempField || !humField || !pressureField) return;
+    if (!tempField.data || !tempField.data.length) return;
+    if (!humField.data || !humField.data.length) return;
+    if (!pressureField.data || !pressureField.data.length) return;
+
+    const latestTemp = tempField.data[tempField.data.length - 1][1];
+    const latestHum = humField.data[humField.data.length - 1][1];
+    const latestPressure = pressureField.data[pressureField.data.length - 1][1];
+
+    let emoji = "🌡️"; // Standard
+
+    // Logik für Emoji basierend auf mehreren Parametern
+    if (latestTemp <= 0) {
+        emoji = "❄️"; // Kalt/Schnee
+    } else if (latestHum > 80 && latestTemp < 20) {
+        emoji = "🌧️"; // Regen
+    } else if (latestHum < 50 && latestTemp > 25) {
+        emoji = "☀️"; // Sonnig/Heiß
+    } else if (latestHum > 60 && latestPressure < 1000) {
+        emoji = "⛈️"; // Gewitterwahrscheinlichkeit
+    } else if (latestHum >= 50 && latestTemp <= 15) {
+        emoji = "🌥️"; // Wolkig/Kühl
+    } else {
+        emoji = "🌤️"; // Mild/Sonnig
+    }
+
+    document.getElementById("header-title").innerHTML = `Wetterstation üdB Hochspeyer ${emoji}`;
+}
+
+// === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
+function startWeatherEmojiUpdater() {
+    // Sofort aufrufen, wenn Daten da sind
+    updateWeatherEmoji();
+    // Dann jede Minute aktualisieren
+    setInterval(updateWeatherEmoji, 60000);
+}
+
+// Hier aufrufen, **erst nachdem die ThingSpeak-Daten geladen sind**
+// Beispiel: direkt am Ende von createChart()
+createChart = function() {
+    // ... dein bestehender createChart Code ...
+
+    dynamicChart = new Highcharts.StockChart(chartOptions);
+
+    // Nach dem Zeichnen des Charts die Emoji-Funktion starten
+    startWeatherEmojiUpdater();
+
+    // ... restlicher Code ...
+};
 
 
       
@@ -497,9 +558,10 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   </head>
   <body style="                      background-color: white;">
     <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial;">
-	  <span>Wetterstation üdB Hochspeyer</span>
-	  <span id="clock" style="font-size: 0.9em; font-weight: normal; color: #333;"></span>
-	</h1>
+      <span id="header-title">Wetterstation üdB Hochspeyer</span>
+      <span id="clock" style="font-size: 0.9em; font-weight: bold; color: #333;"></span>
+    </h1>
+
     
     <div id="current-values" style="font-family: Arial; margin-bottom: 20px; gap: 20px;">
       <!-- Hier werden die aktuellen Werte dynamisch eingefügt -->
@@ -574,7 +636,4 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
       }
 
     </style>
-
-    
-    
 </html>
