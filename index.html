@@ -303,8 +303,18 @@
         }
 		},
 		legend: {
-		  enabled: true
-		},
+                    enabled: true,
+                    itemStyle: {
+                        fontSize: '30px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                    },
+                    itemHoverStyle: {
+                        color: '#000000'
+                    },
+                    symbolHeight: 20, // Höhe des Legenden-Kästchens
+                    symbolWidth: 20   // Breite des Legenden-Kästchens
+                },
     navigator: {
       baseSeries: 0,  //select which series to show in history navigator, First series is 0
       series: {
