@@ -227,7 +227,7 @@
 			inputEnabled: true,
 			selected: 3,
 			buttonTheme: {
-                              width: 57,       // Breite der Buttons
+                              width: 55,       // Breite der Buttons
                               height: 50,      // Höhe der Buttons
                               style: {
                                         fontSize: '20px'
@@ -326,7 +326,7 @@
         }
 		},
 		legend: {
-                    enabled: true,
+                    enabled: false,
                     itemStyle: {
                         fontSize: '30px',
                         fontWeight: 'bold',
@@ -368,10 +368,14 @@
 
 	// draw the chart
   dynamicChart = new Highcharts.StockChart(chartOptions);
+  
   // Felder bei Start ausbleden
   dynamicChart.series[4].hide();  
   dynamicChart.series[5].hide();  
 
+  // Buttons erstellen
+  createSeriesButtons();
+  
   // update series number to account for the navigator series (The historical series at the bottom) which is the first series.
   for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
   {
@@ -522,6 +526,60 @@ createChart = function() {
     // ... restlicher Code ...
 };
 
+function createSeriesButtons() {
+    const container = document.getElementById("buttons-container");
+
+    // Container als flexbox für gleichmäßige Anordnung
+    container.innerHTML = ''; // vorherige Buttons löschen
+    container.style.display = 'flex';
+    container.style.flexWrap = 'wrap';
+    container.style.alignItems = 'center'; // vertikal zentrieren
+    container.style.gap = '5px';           // Abstand zwischen Buttons
+
+    for (let channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) {
+        const channel = channelKeys[channelIndex];
+
+        for (let i = 0; i < channel.fieldList.length; i++) {
+            const field = channel.fieldList[i];
+
+            // Nur bestimmte Buttons erstellen
+            if (field.name.includes("Tages min. Temperatur") || field.name.includes("Tages max. Temperatur")) {
+                continue; // Button nicht erzeugen
+            }
+
+            const button = document.createElement('button');
+            button.style.width = '142px';
+            button.style.minHeight = '50px';      // garantiert Mindesthöhe
+            button.style.fontSize = '16px';
+            button.style.fontWeight = 'bold';
+            button.style.margin = '5px';
+            button.style.whiteSpace = 'normal';   // Text darf umbrechen
+            button.style.textAlign = 'center';
+            button.style.padding = '5px';         // innenabstand
+            button.style.boxSizing = 'border-box';
+            button.style.display = 'flex';
+            button.style.alignItems = 'center';      // Text vertikal zentrieren
+            button.style.justifyContent = 'center';  // Text horizontal zentrieren
+            button.textContent = field.name;
+
+            // Statusfarbe initial setzen
+            const series = dynamicChart.series[field.series];
+            button.style.backgroundColor = series.visible ? '#e6eaff' : '#f7f7f7'; // blau = sichtbar, grau = ausgeblendet
+            button.style.color = series.visible ? 'black' : 'gray';
+
+            // Klick-Handler
+            button.onclick = function() {
+                series.visible ? series.hide() : series.show();
+                // Buttonfarbe aktualisieren
+                button.style.backgroundColor = series.visible ? '#e6eaff' : '#f7f7f7'; // blau = sichtbar, grau = ausgeblendet
+                button.style.color = series.visible ? 'black' : 'gray';
+            };
+
+            container.appendChild(button);
+        }
+    }
+}
+
 
       
 function loadOneChannel(){ 
@@ -604,6 +662,9 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     <div id="chart-container" style="height: 700px;"><br>
       Highstock Chart Here<br>
     </div>
+    
+    <div id="buttons-container" style="margin-top:10px;"></div>
+    
     <div id="below chart"> <button style="width: 110px; margin-top: -18px;" value="Hide All"
         name="Hide All Button"
         onclick="HideAll();">Alle ausbleden</button><button style="width: 200px; margin-top: -18px;" value="Load More Data"
