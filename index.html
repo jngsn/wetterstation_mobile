@@ -437,9 +437,8 @@ function updateClock() {
 
   const hours = now.getHours().toString().padStart(2, '0');
   const minutes = now.getMinutes().toString().padStart(2, '0');
-  const seconds = now.getSeconds().toString().padStart(2, '0');
-
-  const formatted = `${dayName}, ${day}. ${month} ${hours}:${minutes}:${seconds}`;
+  
+  const formatted = `${dayName}, ${day}. ${month} - ${hours}:${minutes}`;
 
   document.getElementById("clock").textContent = formatted;
 }
@@ -671,7 +670,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   <body style="                      background-color: white;">
     <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 3.5em;">
       <span id="header-title">Wetterstation üdB</span>
-      <span id="clock" style="font-size: 0.6em; font-weight: bold; color: #b7c2fe;"></span>
+      <span id="clock" style="font-size: 0.6em; font-weight: bold; color: #777777;"></span>
     </h1>
     
     <p style="
@@ -682,7 +681,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   display: flex; 
   justify-content: space-between;
 ">
-  <span>📍 Hochspeyer, Rheinland-Pfalz — 280 m ü. NN</span>
+  <span>📍 Hochspeyer, Rheinland-Pfalz - 280 m ü. NN</span>
   <span>ESP8266 D1 mini pro, BME280 & MISOL Regenmesser </span>
 </p>
 
