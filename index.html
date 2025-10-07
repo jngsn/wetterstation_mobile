@@ -695,6 +695,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
       Diagramm wird geladen...<br>
     </div>
     
+    
     <div id="buttons-container" style="margin-top:10px;"></div>
     <div style="height:20px;"></div>
     
@@ -727,9 +728,19 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
       <span id="Latency" style="font-family: Arial;">(Latency)</span>
     </div>
     
+       <!-- Button für mehr historische Daten -->
+    <div style="text-align:center; margin-top: 10px;">
+      <button 
+        onclick="loadOneChannel();" 
+        style="padding: 10px 20px; font-size: 1em; border:none; outline:none; border-radius:0px; background-color:#e6eaff; color:#333; cursor:pointer;">
+        Mehr historische Daten laden
+      </button>
+    </div>
+    
     <div style="height:20px;"></div>
     <hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
 
+    
     
 <a class="weatherwidget-io" href="https://forecast7.com/de/49d447d90/hochspeyer/" data-label_1="HOCHSPEYER" data-label_2="WEATHER" data-icons="Climacons Animated" data-mode="Forecast" data-theme="original" data-basecolor="#e6eaff" data-textcolor="#535353" data-highcolor="#a15757" data-lowcolor="#5296f8" >HOCHSPEYER WEATHER</a>
 <script>
