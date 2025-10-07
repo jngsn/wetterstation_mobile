@@ -363,6 +363,32 @@
  }
 });
 
+// === Aktuelle Uhrzeit und Datum rechts oben anzeigen ===
+function updateClock() {
+  const now = new Date();
+
+  // Deutsche Wochentage & Monate
+  const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+
+  const dayName = days[now.getDay()];
+  const day = now.getDate();
+  const month = months[now.getMonth()];
+
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+
+  const formatted = `${dayName}, ${day}. ${month} ${hours}:${minutes}:${seconds}`;
+
+  document.getElementById("clock").textContent = formatted;
+}
+
+// Uhr jede Sekunde aktualisieren
+setInterval(updateClock, 1000);
+updateClock(); // sofort starten
+
+		
 function updateCurrentValues() {
   let container = document.getElementById("current-values");
   container.innerHTML = ''; // Leeren vor Neubefüllung
@@ -464,7 +490,10 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     <title>>Wetterstation üdB Hochspeyer</title>
   </head>
   <body style="                      background-color: white;">
-    <h1 style="text-align: left; font-family: Arial;"> Wetterstation üdB Hochspeyer</h1>
+    <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial;">
+	  <span>Wetterstation üdB Hochspeyer</span>
+	  <span id="clock" style="font-size: 0.9em; font-weight: normal; color: #333;"></span>
+	</h1>
     
     <div id="current-values" style="font-family: Arial; margin-bottom: 20px; gap: 20px;">
       <!-- Hier werden die aktuellen Werte dynamisch eingefügt -->
