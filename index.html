@@ -227,9 +227,9 @@
 			inputEnabled: true,
 			selected: 3,
 			buttonTheme: {
-                              width: 45,       // Breite der Buttons
-                              height: 30,      // Höhe der Buttons
-                              fontSize: '14px' // Schriftgröße
+                              width: 57,       // Breite der Buttons
+                              height: 50,      // Höhe der Buttons
+                              fontSize: '30px' // Schriftgröße
                               }
 		},
     title: {
@@ -290,13 +290,29 @@
                 //text: 'Luftfeuchtigkeit (g/m²)'
             },
             opposite: false,
-            id: 'H'
+            id: 'H',
+            labels: {
+                  align: 'left', // linksbündig innerhalb des Achsenbereichs
+                  x: 0, // verschiebt die Achsenwerte nach links
+                  y: -2,
+                  style: {
+                      fontSize: '12px' // optional Schriftgröße anpassen
+                  }
+            }
     }, {
             title: {
                 //text: 'Luftdruck'
             },
             opposite: false,
-            id: 'P'
+            id: 'P',
+            labels: {
+                  align: 'left', // linksbündig innerhalb des Achsenbereichs
+                  x: 0, // verschiebt die Achsenwerte nach links
+                  y: 11,
+                  style: {
+                      fontSize: '12px' // optional Schriftgröße anpassen
+                  }
+            }
     }],
 		exporting: {
 		enabled: true,
