@@ -253,10 +253,10 @@
 			inputEnabled: true,
 			selected: 3,
 			buttonTheme: {
-                              width: 55,       // Breite der Buttons
-                              height: 50,      // Höhe der Buttons
+                              width: 25,       // Breite der Buttons
+                              height: 25,      // Höhe der Buttons
                               style: {
-                                        fontSize: '20px'
+                                        fontSize: '14px'
                                     }
                               }
 		},
@@ -475,11 +475,12 @@ function updateCurrentValues() {
         latestValue = field.data[field.data.length - 1][1];
       }
 
+	  //buttonscurrentvalue
       let box = document.createElement('div');
       box.style.border = "1px solid #ccc";
-      box.style.padding = "8px";
+      box.style.padding = "2px";
       box.style.borderRadius = "5px";
-      box.style.minWidth = "55px";
+      box.style.minWidth = "65px";
       box.style.textAlign = "center";
       box.style.backgroundColor = "#f9f9f9";
 
@@ -576,9 +577,9 @@ function createSeriesButtons() {
             if (field.name.includes("Tages min. Temperatur") || field.name.includes("Tages max. Temperatur")) {
                 continue; // Button nicht erzeugen
             }
-
+			// Chartbuttons
             const button = document.createElement('button');
-            button.style.width = '45px';
+            button.style.width = '50px';
             button.style.minHeight = '40px';      // garantiert Mindesthöhe
             button.style.fontSize = '12px';
             button.style.fontWeight = 'bold';
