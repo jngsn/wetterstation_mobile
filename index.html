@@ -146,7 +146,7 @@
 	  chart: 
     {
 		marginTop: 10,    // Abstand oben
-	    marginBottom: 50,  // Abstand unten (Legende / Navigator)
+	    marginBottom: 60,  // Abstand unten (Legende / Navigator)
 	  renderTo: 'chart-container',
       zoomType:'y',
 			events: 
@@ -369,10 +369,10 @@
                     itemHoverStyle: {
                         color: '#000000'
                     },
-                    symbolHeight: 10, // Höhe des Legenden-Kästchens
-                    symbolWidth: 10,   // Breite des Legenden-Kästchens
-					itemMarginTop: 2,     // Abstand oberhalb jedes Eintrags
-    				itemMarginBottom: 2  // Abstand unterhalb jedes Eintrags
+                    symbolHeight: 8, // Höhe des Legenden-Kästchens
+                    symbolWidth: 8,   // Breite des Legenden-Kästchens
+					itemMarginTop: 1,     // Abstand oberhalb jedes Eintrags
+    				itemMarginBottom: 1  // Abstand unterhalb jedes Eintrags
                 },
     navigator: {
             //baseSeries: 0,  //select which series to show in history navigator, First series is 0
@@ -400,7 +400,7 @@
   }
 	// set chart labels here so that decoding occurs properly
 	//chartOptions.title.text = data.channel.name;
-	chartOptions.xAxis.title.text = 'Uhrzeit';
+	// chartOptions.xAxis.title.text = 'Uhrzeit';
 
 	// draw the chart
   dynamicChart = new Highcharts.StockChart(chartOptions);
