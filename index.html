@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -475,9 +476,9 @@ function updateCurrentValues() {
       const unit = field.unit ? ` ${field.unit}` : '';
       const roundedValue = Number(latestValue).toFixed(1);
       const unitHTML = field.unit ? `<span style="font-size: 0.6em;">${field.unit}</span>` : '';
-      box.innerHTML = `<span style="font-size: 3.0em; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
-                      <strong style="font-size: 1.2em;">${field.name}</strong>`;
+      box.innerHTML = `<span style="font-size: 2.5rem; font-weight: bold;">${roundedValue}${unitHTML}</span><br><strong style="font-size: 1.0rem;">${field.name}</strong>`;
 
+		
       container.appendChild(box);
     }
   }
@@ -520,7 +521,7 @@ function updateWeatherEmoji() {
         emoji = "🌤️"; // Mild/Sonnig
     }
 
-    document.getElementById("header-title").innerHTML = `Wetterstation ${emoji}`;
+    document.getElementById("er-title").innerHTML = `Wetterstation ${emoji}`;
 }
 
 // === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
@@ -666,10 +667,10 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 
   </script>
     <title>Wetterstation Hochspeyer</title>
-  </head>
+  </>
   <body style="                      background-color: white;">
     <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 3.5em;">
-      <span id="header-title">Wetterstation</span>
+      <span id="er-title">Wetterstation</span>
       <span id="clock" style="font-size: 0.6em; font-weight: bold; color: #777777;"></span>
     </h1>
     
@@ -785,26 +786,25 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   </body>
       <style>
       #current-values {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-        max-width: 800px; /* das erzwingt den Umbruch */
-        margin: 0 left;
-        font-size: 1.1em;
-        padding: 10px;
-        box-sizing: border-box;
-        flex-wrap: nowrap;
-      }
+		  display: grid;
+		  grid-template-columns: repeat(4, 1fr);
+		  gap: 12px;
+		  max-width: 800px;
+		  font-size: 1rem; /* feste Basisgröße */
+		  padding: 10px;
+		  box-sizing: border-box;
+		  flex-wrap: nowrap;
+		}
+		
+		#current-values div {
+		  border: 1px solid #ccc;
+		  padding: 12px;
+		  border-radius: 8px;
+		  text-align: center;
+		  background-color: #f0f0f0;
+		  font-size: 1rem; /* stabil statt 1.2em */
+		}
 
-      #current-values div {
-        border: 1px solid #ccc;
-        padding: 12px;
-        border-radius: 8px;
-        text-align: center;
-        background-color: #f0f0f0;
-        font-family: Arial, sans-serif;
-        font-size: 1.2em;
-      }
 
       #current-values strong {
         display: block;
@@ -822,6 +822,17 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
       #below\ chart {
         display: none !important;
       }
-      
+
+	<!--  Einheitliche Schriftbasis -->
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	  <style>
+	    html {
+	      font-size: 16px; /* feste Root-Schriftgröße für rem */
+	    }
+	    body {
+	      -webkit-text-size-adjust: 100%; /* verhindert iOS-Autozoom */
+	      font-family: Arial, sans-serif;
+	    }
+		  
     </style>
 </html>
