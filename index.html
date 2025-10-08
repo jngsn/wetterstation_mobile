@@ -579,14 +579,14 @@ function createSeriesButtons() {
             }
 			// Chartbuttons
             const button = document.createElement('button');
-            button.style.width = '58px';
+            button.style.width = '56px';
             button.style.minHeight = '40px';      // garantiert Mindesthöhe
             button.style.fontSize = '8px';
             button.style.fontWeight = 'bold';
             button.style.margin = '5px';
             button.style.whiteSpace = 'normal';   // Text darf umbrechen
             button.style.textAlign = 'center';
-            button.style.padding = '0';         // innenabstand
+            button.style.padding = '2px';         // innenabstand
             button.style.boxSizing = 'border-box';
             button.style.display = 'flex';
             button.style.alignItems = 'center';      // Text vertikal zentrieren
@@ -806,20 +806,18 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 		    margin: 0;
 		    padding: 0;
 		    box-sizing: border-box;
-			overflow-x: hidden; /* horizontalen Scroll komplett verhindern */
 		}
 		
 		#current-values {
-		  	display: grid;
+		    display: grid;
 		    grid-template-columns: repeat(4, 1fr); /* genau 4 Spalten */
-		    gap: 8px;
-		    width: 100%;           /* volle Breite des Viewports */
-		    max-width: 100%;       /* auf Viewport begrenzen */
-		    margin: 0 auto;        /* zentriert */
-		    padding: 0;            /* kein zusätzlicher Innenabstand */
+		    gap: 8px;              /* Abstand zwischen den Boxen */
+		    width: 100%;
+		    max-width: 100%;       /* verhindert, dass Grid über die Seite hinausgeht */
+		    margin: 0 auto;        /* zentriert den Grid-Container */
+		    padding: 0 4px;        /* kleine Innenabstände links/rechts */
 		    box-sizing: border-box;
 		}
-
 		
 		#current-values div {
 		    border: 1px solid #ccc;
@@ -830,10 +828,9 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 		    font-family: Arial, sans-serif;
 		    font-size: 1.2em;
 		    box-sizing: border-box;
-		    min-width: 0;          /* verhindert, dass Boxen überlaufen */
-		    overflow-wrap: break-word; /* Text umbrechen, falls nötig */
+		    min-width: 0;           /* sehr wichtig, verhindert Overflow */
+		    overflow-wrap: break-word; /* verhindert, dass Text die Box sprengt */
 		}
-
 		
 		#current-values strong {
 		    display: block;
@@ -850,12 +847,9 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 
   
       /* --- Untere Steuerzeile ausblenden --- */
-      #buttons-container, #below\ chart {
-		    max-width: 100%;
-		    overflow-x: auto; /* falls doch zu viel Inhalt, Scroll nur hier */
-		  	display: none !important;
-		}
-
+      #below\ chart {
+        display: none !important;
+      }
       
     </style>
 </html>
