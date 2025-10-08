@@ -554,18 +554,6 @@ function startWeatherEmojiUpdater() {
     setInterval(updateWeatherEmoji, 60000);
 }
 
-// Hier aufrufen, **erst nachdem die ThingSpeak-Daten geladen sind**
-// Beispiel: direkt am Ende von createChart()
-createChart = function() {
-    // ... dein bestehender createChart Code ...
-
-    dynamicChart = new Highcharts.StockChart(chartOptions);
-
-    // Nach dem Zeichnen des Charts die Emoji-Funktion starten
-    startWeatherEmojiUpdater();
-
-    // ... restlicher Code ...
-};
 
 function createSeriesButtons() {
     const container = document.getElementById("buttons-container");
