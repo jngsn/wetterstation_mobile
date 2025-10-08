@@ -479,7 +479,7 @@ function updateCurrentValues() {
       box.style.border = "1px solid #ccc";
       box.style.padding = "8px";
       box.style.borderRadius = "5px";
-      box.style.minWidth = "202px";
+      box.style.minWidth = "50px";
       box.style.textAlign = "center";
       box.style.backgroundColor = "#f9f9f9";
 
@@ -487,8 +487,8 @@ function updateCurrentValues() {
       const unit = field.unit ? ` ${field.unit}` : '';
       const roundedValue = Number(latestValue).toFixed(1);
       const unitHTML = field.unit ? `<span style="font-size: 0.6em;">${field.unit}</span>` : '';
-      box.innerHTML = `<span style="font-size: 3.5rem; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
-                      <strong style="font-size: 1.8rem;">${field.name}</strong>`;
+      box.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
+                      <strong style="font-size: 0.6rem;">${field.name}</strong>`;
 
       container.appendChild(box);
     }
