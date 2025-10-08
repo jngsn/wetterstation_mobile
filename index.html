@@ -298,17 +298,23 @@
     },
 		xAxis: {
 		  type: 'datetime',
-      ordinal:false,
-      min: Date.UTC(2013,02,28),
-			dateTimeLabelFormats : {
-        hour: '%k %p',
-        minute: '%k:%M'
-        //hour: '%l %p',
-        //minute: '%l:%M %p'
-      },
-      title: {
-        text: 'test'
-			}
+      			ordinal:false,
+      			min: Date.UTC(2013,02,28),
+				dateTimeLabelFormats : {
+        			hour: '%k %p',
+        			minute: '%k:%M'
+        			//hour: '%l %p',
+        			//minute: '%l:%M %p'
+      		},
+     		 labels: {
+        style: {
+				fontSize: '10px', // Schriftgröße ändern
+				color: '#333'     // optional, Schriftfarbe
+		       }
+		    },
+		    title: {
+		        text: null // Titel entfernen
+		    }
 		},
 		yAxis: [{
             title: {
