@@ -379,11 +379,17 @@
 					y: 0                   // verschiebt die Legende näher an den Chart
                 },
     navigator: {
-            //baseSeries: 0,  //select which series to show in history navigator, First series is 0
-            //series: {
-            //      includeInCSVExport: false
-            enabled: false // Navigator ausblenden
-		},    
+            enabled: false,
+		    outlineWidth: 0,        // 👈 entfernt den Rahmen des Navigator-Felds
+		    maskFill: 'rgba(0,0,0,0)', // 👈 macht die „Schattierung“ transparent
+		    handles: {              // 👈 entfernt die Ziehgriffe, falls sie noch da sind
+    	    backgroundColor: 'transparent',
+    	    borderColor: 'transparent'
+		},  
+	scrollbar: {
+	    enabled: false           // 👈 entfernt auch den unteren Scrollbalken
+	},
+		
     series: []
     //series: [{data:[[getChartDate("2013-06-16T00:32:40Z"),75]]}]      
 	};
@@ -714,7 +720,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 </div>
 
 <!-- Chart / Diagramm -->
-<div id="chart-container" style="height: 300px;"><br>
+<div id="chart-container" style="height: 400px;"><br>
   Daten werden geladen...<br>
 </div>
 
