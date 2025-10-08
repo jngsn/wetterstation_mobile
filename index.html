@@ -475,7 +475,7 @@ function updateCurrentValues() {
       const unit = field.unit ? ` ${field.unit}` : '';
       const roundedValue = Number(latestValue).toFixed(1);
       const unitHTML = field.unit ? `<span style="font-size: 0.6em;">${field.unit}</span>` : '';
-      box.innerHTML = `<span style="font-size: 3.0em; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
+      box.innerHTML = `<span style="font-size: 2.0rem; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
                       <strong style="font-size: 1.0rem;">${field.name}</strong>`;
 
       container.appendChild(box);
