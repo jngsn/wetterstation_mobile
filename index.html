@@ -677,16 +677,20 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 	 });
 }
 
-  </script>
-    <title>Wetterstation</title>
-  </head>
-  <body style="                      background-color: white;">
-    <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 1.8rem;">
-      <span id="header-title">Wetterstation</span>
-      <span id="clock" style="font-size: 1.0rem; font-weight: bold; color: #777777;"></span>
-    </h1>
-    
-    <p style="
+</script>
+	  
+<title>Wetterstation</title>
+</head>
+<body style="                      background-color: white;">
+
+<!-- Überschrift -->
+<h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 1.8rem;">
+  <span id="header-title">Wetterstation</span>
+  <span id="clock" style="font-size: 1.0rem; font-weight: bold; color: #777777;"></span>
+</h1>
+
+<!-- Zusatzinfos -->
+<p style="
   font-size: 0.5rem; 
   font-family: Arial;
   color: #666; 
@@ -698,63 +702,64 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   <span>ESP8266 D1 mini pro, BME280 & MISOL Regenmesser </span>
 </p>
 
-    
-    <div id="current-values" style="font-family: Arial; margin: 10px; gap: 5px;">
-      <!-- Hier werden die aktuellen Werte dynamisch eingefügt -->
-    </div>
+<!-- Felder aktuelle Werte -->
+<div id="current-values" style="font-family: Arial; margin: 10px; gap: 5px;">
+  <!-- Hier werden die aktuellen Werte dynamisch eingefügt -->
+</div>
 
-    
-    <div id="chart-container" style="height: 700px;"><br>
-      Diagramm wird geladen...<br>
-    </div>
-    
-    
-    <div id="buttons-container" style="margin-top:10px;"></div>
-    <div style="height:20px;"></div>
-    
-    <div id="below chart"> <button style="width: 110px; margin-top: -18px;" value="Hide All"
-        name="Hide All Button"
-        onclick="HideAll();">Alle ausbleden</button><button style="width: 200px; margin-top: -18px;" value="Load More Data"
-        name="Load More Data"
-        onclick="loadOneChannel();">Mehr historische Daten laden</button>
-      <select id="Channel Select">
-      </select>
-      <select id="Loads">
-        <option value="1">1 Datensätze</option>
-        <option value="2">2 Datensätze</option>
-        <option value="3">3 Datensätze</option>
-        <option value="4">4 Datensätze</option>
-        <option value="5">5 Datensätze</option>
-        <option value="6">6 Datensätze</option>
-        <option value="7">7 Datensätze</option>
-        <option value="8">8 Datensätze</option>
-        <option value="9">9 Datensätze</option>
-        <option value="10">10 Datensätze</option>
-        <option value="15">15 Datensätze</option>
-        <option value="20"selected="selected">20 Datensätze</option>
-        <option value="25">25 Datensätze</option>
-        <option value="30">30 Datensätze</option>
-        <option value="40">40 Datensätze</option>
-        <option value="50">50 Datensätze</option>
-      </select>
-      <input id="Update" name="Update" type="checkbox" checked><span style="font-family: Arial;">Daten automatisch nachladen</span> 
-      <span id="Latency" style="font-family: Arial;">(Latency)</span>
-    </div>
-    
-       <!-- Button für mehr historische Daten -->
-    <div style="text-align:center; margin-top: 10px;">
-      <button 
-        onclick="loadOneChannel();" 
-        style="padding: 10px 20px; font-size: 1rem; border:none; outline:none; border-radius:0px; background-color:#e6eaff; color:#333; cursor:pointer;">
-        Mehr historische Daten laden
-      </button>
-    </div>
-    
-    <div style="height:20px;"></div>
-    <hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
+<!-- Chart / Diagramm -->
+<div id="chart-container" style="height: 700px;"><br>
+  Diagramm wird geladen...<br>
+</div>
 
+<!-- Buttons zum ein/ausschalten der Linien -->
+<div id="buttons-container" style="margin-top:10px;"></div>
+<div style="height:20px;"></div>
+
+<!-- Steuerelemente des Charts - Ausgeblendet -->
+<div id="below chart"> <button style="width: 110px; margin-top: -18px;" value="Hide All"
+	name="Hide All Button"
+	onclick="HideAll();">Alle ausbleden</button><button style="width: 200px; margin-top: -18px;" value="Load More Data"
+	name="Load More Data"
+	onclick="loadOneChannel();">Mehr historische Daten laden</button>
+  <select id="Channel Select">
+  </select>
+  <select id="Loads">
+	<option value="1">1 Datensätze</option>
+	<option value="2">2 Datensätze</option>
+	<option value="3">3 Datensätze</option>
+	<option value="4">4 Datensätze</option>
+	<option value="5">5 Datensätze</option>
+	<option value="6">6 Datensätze</option>
+	<option value="7">7 Datensätze</option>
+	<option value="8">8 Datensätze</option>
+	<option value="9">9 Datensätze</option>
+	<option value="10">10 Datensätze</option>
+	<option value="15">15 Datensätze</option>
+	<option value="20"selected="selected">20 Datensätze</option>
+	<option value="25">25 Datensätze</option>
+	<option value="30">30 Datensätze</option>
+	<option value="40">40 Datensätze</option>
+	<option value="50">50 Datensätze</option>
+  </select>
+  <input id="Update" name="Update" type="checkbox" checked><span style="font-family: Arial;">Daten automatisch nachladen</span> 
+  <span id="Latency" style="font-family: Arial;">(Latency)</span>
+</div>
     
+<!-- Button für mehr historische Daten -->
+<div style="text-align:center; margin-top: 10px;">
+  <button 
+	onclick="loadOneChannel();" 
+	style="padding: 10px 20px; font-size: 1rem; border:none; outline:none; border-radius:0px; background-color:#e6eaff; color:#333; cursor:pointer;">
+	Mehr historische Daten laden
+  </button>
+</div>
+
+	  <!-- Trennlinie -->
+<div style="height:20px;"></div>
+<hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
     
+<!-- Wettervorhersage Widget -->    
 <a class="weatherwidget-io" href="https://forecast7.com/de/49d447d90/hochspeyer/" data-label_1="HOCHSPEYER" data-label_2="WEATHER" data-icons="Climacons Animated" data-mode="Forecast" data-theme="original" data-basecolor="#e6eaff" data-textcolor="#535353" data-highcolor="#a15757" data-lowcolor="#5296f8" >HOCHSPEYER WEATHER</a>
 <script>
 !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
@@ -762,7 +767,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 
 
 
-<!-- Button -->
+<!-- Impressum Button -->
 <button onclick="document.getElementById('impressum').style.display='block'" 
         style="position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
                border:none; outline:none;
@@ -794,7 +799,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 </div>
 
 
-   
+	<!-- Felder aktuelle Werte oben -->
   </body>
       <style>
       #current-values {
@@ -802,7 +807,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
         grid-template-columns: repeat(4, 1fr);
         gap: 12px;
         max-width: 800px; /* das erzwingt den Umbruch */
-        margin: 0 left;
+        margin: 0;
         font-size: 1.1em;
         padding: 10px;
         box-sizing: border-box;
