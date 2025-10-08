@@ -479,7 +479,7 @@ function updateCurrentValues() {
       box.style.border = "1px solid #ccc";
       box.style.padding = "8px";
       box.style.borderRadius = "5px";
-      box.style.minWidth = "50px";
+      box.style.minWidth = "55px";
       box.style.textAlign = "center";
       box.style.backgroundColor = "#f9f9f9";
 
@@ -564,7 +564,7 @@ function createSeriesButtons() {
     container.style.display = 'flex';
     container.style.flexWrap = 'wrap';
     container.style.alignItems = 'center'; // vertikal zentrieren
-    container.style.gap = '5px';           // Abstand zwischen Buttons
+    container.style.gap = '2px';           // Abstand zwischen Buttons
 
     for (let channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) {
         const channel = channelKeys[channelIndex];
@@ -578,9 +578,9 @@ function createSeriesButtons() {
             }
 
             const button = document.createElement('button');
-            button.style.width = '145px';
-            button.style.minHeight = '50px';      // garantiert Mindesthöhe
-            button.style.fontSize = '16px';
+            button.style.width = '45px';
+            button.style.minHeight = '40px';      // garantiert Mindesthöhe
+            button.style.fontSize = '12px';
             button.style.fontWeight = 'bold';
             button.style.margin = '5px';
             button.style.whiteSpace = 'normal';   // Text darf umbrechen
@@ -686,7 +686,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     </h1>
     
     <p style="
-  font-size: 0.4rem; 
+  font-size: 0.5rem; 
   font-family: Arial;
   color: #666; 
   margin-top: -5px; 
