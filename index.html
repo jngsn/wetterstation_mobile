@@ -681,7 +681,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 	  
 <title>Wetterstation</title>
 </head>
-<body style="                      background-color: white;">
+<body style="background-color: white;">
 
 <!-- Überschrift -->
 <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 1.8rem;">
@@ -802,6 +802,10 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 	<!-- Felder aktuelle Werte oben -->
   </body>
       <style>
+		body {
+		  margin: 0;
+		  padding: 0;
+		}
       #current-values {
 		  display: grid;
 		  grid-template-columns: repeat(4, 1fr);
