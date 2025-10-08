@@ -384,18 +384,20 @@
 					y: 0                   // verschiebt die Legende näher an den Chart
                 },
     navigator: {
-            enabled: false,
-		    outlineWidth: 0,        // 👈 entfernt den Rahmen des Navigator-Felds
-		    maskFill: 'rgba(0,0,0,0)', // 👈 macht die „Schattierung“ transparent
-		    handles: {              // 👈 entfernt die Ziehgriffe, falls sie noch da sind
-    	    backgroundColor: 'transparent',
-    	    borderColor: 'transparent'
-		},  
-	scrollbar: {
-	    enabled: false           // 👈 entfernt auch den unteren Scrollbalken
+	    enabled: false,
+	    outlineWidth: 0,            // Rahmen entfernen
+	    maskFill: 'rgba(0,0,0,0)',  // Schattierung transparent
+	    handles: {
+	        backgroundColor: 'transparent',
+	        borderColor: 'transparent'
+	    }
 	},
-		
-    series: []
+	scrollbar: {
+	    enabled: false               // Scrollbalken komplett deaktivieren
+	},
+	
+	series: []                       // 👈 Jetzt auf der richtigen Ebene
+
     //series: [{data:[[getChartDate("2013-06-16T00:32:40Z"),75]]}]      
 	};
 
