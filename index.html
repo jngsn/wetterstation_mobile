@@ -803,45 +803,46 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   </body>
       <style>
 		body {
-		  margin: 2px;
-		  padding: 0;
-		  box-sizing: border-box;
+		    margin: 0;
+		    padding: 0;
+		    box-sizing: border-box;
 		}
-      #current-values {
-		  display: grid;
-		  grid-template-columns: repeat(4, 1fr); /* genau 4 Spalten */
-		  gap: 8px;            /* Abstand zwischen den Boxen */
-		  width: 100%;
-		  margin: 0;           /* kein äußerer Abstand */
-		  padding: 0;          /* kein Innenabstand links/rechts */
-		  box-sizing: border-box;
+		
+		#current-values {
+		    display: grid;
+		    grid-template-columns: repeat(4, 1fr); /* genau 4 Spalten */
+		    gap: 8px;              /* Abstand zwischen Boxen */
+		    width: 100%;           /* Container volle Breite */
+		    margin: 0;
+		    padding: 0;
+		    box-sizing: border-box;
+		    overflow-x: hidden;    /* horizontalen Scroll verhindern */
+		}
+		
+		#current-values div {
+		    border: 1px solid #ccc;
+		    padding: 10px;
+		    border-radius: 8px;
+		    text-align: center;
+		    background-color: #f0f0f0;
+		    font-family: Arial, sans-serif;
+		    font-size: 1.2em;
+		    box-sizing: border-box; /* wichtig */
+		    min-width: 0;           /* verhindert Overflow innerhalb Grid */
+		}
+		
+		#current-values strong {
+		    display: block;
+		    font-size: 1em;
+		    margin-bottom: 6px;
+		}
+		
+		#current-values span {
+		    font-size: 1.6em;
+		    font-weight: bold;
+		    color: #333;
 		}
 
-
-
-      	#current-values div {
-			border: 1px solid #ccc;
-			padding: 10px;      /* Innenabstand */
-			border-radius: 8px;
-			text-align: center;
-			background-color: #f0f0f0;
-			font-family: Arial, sans-serif;
-			font-size: 1.2em;
-			box-sizing: border-box;  /* <--- wichtig */
-		}
-
-
-      #current-values strong {
-        display: block;
-        font-size: 1em;
-        margin-bottom: 6px;
-      }
-
-      #current-values span {
-        font-size: 1.6em;
-        font-weight: bold;
-        color: #333;
-      }
   
       /* --- Untere Steuerzeile ausblenden --- */
       #below\ chart {
