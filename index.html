@@ -805,16 +805,18 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 		body {
 		  margin: 2px;
 		  padding: 0;
+		  box-sizing: border-box;
 		}
       #current-values {
 		  display: grid;
-		  grid-template-columns: repeat(4, 1fr);
-		  gap: 12px;
-		  width: 100%;           /* volle Breite statt max-width */
-		  margin: 0;             /* kein äußerer Abstand */
-		  padding: 0;/* kein Innenabstand links/rechts */
+		  grid-template-columns: repeat(4, 1fr); /* genau 4 Spalten */
+		  gap: 8px;            /* Abstand zwischen den Boxen */
+		  width: 100%;
+		  margin: 0;           /* kein äußerer Abstand */
+		  padding: 0;          /* kein Innenabstand links/rechts */
 		  box-sizing: border-box;
 		}
+
 
 
       #current-values div {
