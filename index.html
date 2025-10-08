@@ -429,9 +429,9 @@
   // Buttons erstellen
   createSeriesButtons();
 
-	// Emoji-Updater starten, nachdem Chart fertig ist
-	startWeatherEmojiUpdater();
-	updateWeatherEmoji(); // Emoji sofort setzen
+	// Emoji-Updater starten, **nachdem die Daten da sind**
+	updateWeatherEmoji();       // Emoji sofort korrekt setzen
+	startWeatherEmojiUpdater(); // dann jede Minute aktualisieren
   
   // update series number to account for the navigator series (The historical series at the bottom) which is the first series.
   for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
@@ -704,7 +704,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 
 <!-- Überschrift -->
 <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 1.8rem;">
-  <span id="header-title">Wetterstation</span>
+  <span id="header-title">Wetterstation 🌡️</span>
   <span id="clock" style="font-size: 1.0rem; font-weight: bold; color: #777777;"></span>
 </h1>
 
