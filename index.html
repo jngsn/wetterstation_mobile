@@ -828,16 +828,16 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 		}
 		
 		#current-values {
-		    display: grid;
-		    grid-template-columns: repeat(4, max-content); /* genau 4 Spalten */
-			justify-content: center;
-		    gap: 8px;              /* Abstand zwischen den Boxen */
-		    width: 100%;
-		    max-width: 100%;       /* verhindert, dass Grid über die Seite hinausgeht */
-		    margin: 0 auto;        /* zentriert den Grid-Container */
-		    padding: 0 4px;        /* kleine Innenabstände links/rechts */
-		    box-sizing: border-box;
+		  display: grid;
+		  grid-template-columns: repeat(4, 1fr);
+		  justify-content: center;
+		  gap: 8px;
+		  width: fit-content; /* passt Breite ans Grid an */
+		  margin: 0 auto;     /* zentriert das Grid */
+		  padding: 0 4px;
+		  box-sizing: border-box;
 		}
+
 		
 		#current-values div {
 		    border: 1px solid #ccc;
