@@ -133,11 +133,7 @@
 	 })
    .fail(function() { alert('getJSON request failed! '); });
  }
- 
- function startWeatherEmojiUpdater() {
-    updateWeatherEmoji();               // Sofort das aktuelle Emoji setzen
-    setInterval(updateWeatherEmoji, 60000); // Dann jede Minute aktualisieren
-  }
+
 
  // create the chart when all data is loaded
  function createChart() {
@@ -564,7 +560,7 @@ function updateWeatherEmoji() {
         emoji = "🌤️"; // Mild/Sonnig
     }
 
-    document.getElementById("header-title").innerHTML = `Wetterstation ${emoji}`;
+    document.getElementById("header-title").innerHTML = `${emoji}Wetterstation`;
 }
 
 // === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
@@ -704,7 +700,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 
 <!-- Überschrift -->
 <h1 style="display: flex; justify-content: space-between; align-items: center; font-family: Arial; font-size: 1.8rem;">
-  <span id="header-title">Wetterstation 🌡️</span>
+  <span id="header-title">🌡️Wetterstation</span>
   <span id="clock" style="font-size: 1.0rem; font-weight: bold; color: #777777;"></span>
 </h1>
 
