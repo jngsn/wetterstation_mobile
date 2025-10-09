@@ -492,17 +492,6 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock(); // sofort starten
 
-
-// Uhr jede Sekunde aktualisieren
-setInterval(updateClock, 1000);
-updateClock(); // sofort starten
-
-
-// Uhr jede Sekunde aktualisieren
-setInterval(updateClock, 1000);
-updateClock(); // sofort starten
-
-
 		
 function updateCurrentValues() {
   let container = document.getElementById("current-values");
@@ -535,6 +524,9 @@ function updateCurrentValues() {
       box.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
                       <strong style="font-size: 0.6rem;">${field.name}</strong>`;
 
+		//  Klick-Event auf die Box
+      	box.addEventListener("click", openCurrentValuesOverlay);
+		
       container.appendChild(box);
     }
   }
