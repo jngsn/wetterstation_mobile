@@ -574,18 +574,7 @@ function openCurrentValuesOverlay() {
     overlay.style.display = 'block';
 }
 
-// Overlay und Inhalt referenzieren
-const overlay = document.getElementById("current-values-overlay");
-const overlayContent = document.getElementById("overlay-content");
 
-// Klick auf Overlay schließt es
-overlay.addEventListener("click", function() {
-    overlay.style.display = 'none';
-});
-
-// Klick auf Overlay-Content verhindert das Schließen
-overlayContent.addEventListener("click", function(event) {
-    event.stopPropagation();
 });
 
 
@@ -760,6 +749,23 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 	 });
 }
 
+// current values overlay schließen
+document.addEventListener("DOMContentLoaded", function() {
+    const overlay = document.getElementById("current-values-overlay");
+    const overlayContent = document.getElementById("overlay-content");
+
+    // Klick auf Overlay schließt es
+    overlay.addEventListener("click", function() {
+        overlay.style.display = 'none';
+    });
+
+    // Klick auf Overlay-Content verhindert das Schließen
+    overlayContent.addEventListener("click", function(event) {
+        event.stopPropagation();
+    });
+});
+
+		
 </script>
 <!-- HTML ################################################################################################################### -->
 <title>Wetterstation</title>
