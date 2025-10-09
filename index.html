@@ -481,7 +481,7 @@ function updateClock() {
     const formattedDate = `${dayName}, ${day}. ${month}`;
 
     document.getElementById("clock").innerHTML = `
-        <div style="text-align:right; line-height:1.0;">
+        <div style="text-align:right; line-height:0.8;">
             <span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span><br>
             <span style="font-size:0.7rem; color:#555;">${formattedDate}</span>
         </div>
@@ -734,12 +734,12 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   font-family: Arial;
   color: #666; 
   margin-top: 0px; 
-  margin: 2px;
+  margin: 20px;
   display: flex; 
   justify-content: space-between;
 ">
   <span>📍 Hochspeyer, Rheinland-Pfalz - 280 m ü. NN</span>
-  <span>ESP8266 D1 mini pro, BME280 & MISOL Regenmesser </span>
+  <span>ESP8266, BME280 & MISOL Regenmesser </span>
 </p>
 
 <!-- Felder aktuelle Werte -->
