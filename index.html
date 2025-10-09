@@ -571,9 +571,9 @@ function openCurrentValuesOverlay() {
     overlay.style.display = 'block';
 }
 
-// Overlay schließen beim Klick auf das Overlay selbst
-document.getElementById("current-values-overlay").addEventListener("click", function() {
-    this.style.display = 'none';
+// Overlay überall anklickbar zum Schließen
+overlay.addEventListener("click", function() {
+    overlay.style.display = 'none';
 });
 
 
@@ -800,16 +800,6 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     text-align:center;
 ">
     <div id="overlay-content" style="max-width:400px; margin:auto;"></div>
-    <button onclick="closeCurrentValuesOverlay()" style="
-        margin-top:10px;
-        padding:10px 20px;
-        font-size:1rem;
-        border:none;
-        border-radius:8px;
-        background-color:#e6eaff;
-        color:#333;
-        cursor:pointer;
-    ">Schließen</button>
 </div>
 
 
