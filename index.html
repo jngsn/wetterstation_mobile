@@ -817,14 +817,15 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     position: fixed;
     bottom: 8px;
     left: 8px;
-    background-color: #444;
-    color: white;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
     border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: 4px 8px;
     font-size: 0.8rem;
+    font-family: sans-serif;
     cursor: pointer;
     z-index: 9999;
+    transition: color 0.2s ease;
 ">Debug</button>
 <div id="debug-info" style="
     display: none;
