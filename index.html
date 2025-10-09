@@ -575,9 +575,12 @@ function openCurrentValuesOverlay() {
 }
 
 // Overlay überall anklickbar zum Schließen
+const overlay = document.getElementById("current-values-overlay");
+
 overlay.addEventListener("click", function() {
     overlay.style.display = 'none';
 });
+
 
 
 
