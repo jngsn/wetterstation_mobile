@@ -812,8 +812,67 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     <button onclick="document.getElementById('impressum').style.display='none'">Schließen</button>
   </div>
 </div>
+<!-- debuginfos -->	
+<button id="debug-toggle" style="
+    position: fixed;
+    bottom: 8px;
+    left: 8px;
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    z-index: 9999;
+">Debug</button>
+<div id="debug-info" style="
+    display: none;
+    position: fixed;
+    bottom: 50px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-family: monospace;
+    z-index: 9999;
+    white-space: pre-line;
+    max-width: 90vw;
+"></div>
+<script>
+function getDebugInfo() {
+  return [
+    `📱 User agent: ${navigator.userAgent}`,
+    `📏 Viewport: ${window.innerWidth} x ${window.innerHeight}`,
+    `🖥️ Screen: ${screen.width} x ${screen.height}`,
+    `🔤 DPR: ${window.devicePixelRatio}`,
+    `🌐 Orientation: ${screen.orientation?.type || "n/a"}`,
+    `🧭 Platform: ${navigator.platform}`
+  ].join('\n');
+}
 
+const debugInfo = document.getElementById("debug-info");
+const debugButton = document.getElementById("debug-toggle");
 
+debugButton.addEventListener("click", () => {
+  if (debugInfo.style.display === "none") {
+    debugInfo.textContent = getDebugInfo();
+    debugInfo.style.display = "block";
+  } else {
+    debugInfo.style.display = "none";
+  }
+});
+
+window.addEventListener("resize", () => {
+  if (debugInfo.style.display === "block") {
+    debugInfo.textContent = getDebugInfo();
+  }
+});
+</script>
+
+	
 	<!-- Felder aktuelle Werte oben -->
   </body>
       <style>
