@@ -462,7 +462,6 @@
  
 });
 
-// === Aktuelle Uhrzeit und Datum rechts oben anzeigen ===
 function updateClock() {
     const now = new Date();
 
@@ -478,16 +477,22 @@ function updateClock() {
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const seconds = now.getSeconds().toString().padStart(2, '0');
 
-    // Optional: coole Trennung zwischen Stunden, Minuten und Sekunden
     const formattedTime = `${hours}:${minutes}:${seconds}`;
     const formattedDate = `${dayName}, ${day}. ${month}`;
 
-    // Styled HTML: Datum kleiner, Zeit größer und fett
+    // Uhrzeit groß, Datum kleiner und rechtsbündig
     document.getElementById("clock").innerHTML = `
-        <span style="font-size:0.7rem; color:#555;">${formattedDate}</span><br>
-        <span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span>
+        <div style="text-align:right;">
+            <span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span><br>
+            <span style="font-size:0.7rem; color:#555;">${formattedDate}</span>
+        </div>
     `;
 }
+
+// Uhr jede Sekunde aktualisieren
+setInterval(updateClock, 1000);
+updateClock(); // sofort starten
+
 
 // Uhr jede Sekunde aktualisieren
 setInterval(updateClock, 1000);
