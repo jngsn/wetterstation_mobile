@@ -523,62 +523,11 @@ function updateCurrentValues() {
       const unitHTML = field.unit ? `<span style="font-size: 0.6em;">${field.unit}</span>` : '';
       box.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
                       <strong style="font-size: 0.6rem;">${field.name}</strong>`;
-
-		//  Klick-Event auf die Box
-      	box.addEventListener("click", openCurrentValuesOverlay);
 		
       container.appendChild(box);
     }
   }
 }
-
-// Overlay öffnen
-function openCurrentValuesOverlay() {
-    const overlay = document.getElementById("current-values-overlay");
-    const overlayContent = document.getElementById("overlay-content");
-    overlayContent.innerHTML = ''; // vorher leeren
-
-    // alle Werte einfügen
-    for (let channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) {
-        const channel = channelKeys[channelIndex];
-        for (let i = 0; i < channel.fieldList.length; i++) {
-            const field = channel.fieldList[i];
-            let latestValue = 'n/a';
-            if (field.data && field.data.length > 0) {
-                latestValue = field.data[field.data.length - 1][1];
-            }
-            const unitHTML = field.unit ? ` ${field.unit}` : '';
-            const roundedValue = Number(latestValue).toFixed(1);
-
-            overlayContent.innerHTML += `
-			    <div style="
-			        font-size: 2rem;          
-			        font-weight: bold;
-			        margin: 6px 0;             
-			        background-color: rgba(255,255,255,0.9);
-			        color: black;              
-			        padding: 6px 10px;         
-			        border-radius: 8px;
-			        line-height: 1.1;          /* engerer Abstand zwischen Zeilen */
-			        text-align: center;
-			    ">
-			        <div style="margin:0; padding:0;">${roundedValue}${unitHTML}</div>
-			        <div style="font-size:0.9rem; font-weight:normal; color:gray; margin-top:2px; line-height:1;">${field.name}</div>
-			    </div>
-			`;
-
-        }
-    }
-
-    // Overlay anzeigen
-    overlay.style.display = 'block';
-}
-
-
-});
-
-
-
 
 
 
@@ -749,19 +698,6 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 	 });
 }
 
-// current values overlay schließen
-document.addEventListener("DOMContentLoaded", function() {
-    const overlay = document.getElementById("current-values-overlay");
-    const overlayContent = document.getElementById("overlay-content");
-
-    // Klick auf Overlay schließt es
-    overlay.addEventListener("click", function() {
-        overlay.style.display = 'none';
-    });
-
-    // Klick auf Overlay-Content verhindert das Schließen
-    overlayContent.addEventListener("click", function(event) {
-        event.stopPropagation();
 });
 
 		
@@ -801,36 +737,6 @@ document.addEventListener("DOMContentLoaded", function() {
 <div id="current-values" style="font-family: Arial; margin: 2px; gap: 5px;">
   <!-- Hier werden die aktuellen Werte dynamisch eingefügt -->
 </div>
-<!-- Overlay für große aktuelle Werte -->
-<div id="current-values-overlay" style="
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background-color: rgba(0,0,0,0.7); /* dunkler, halbtransparent */
-    color:black;
-    z-index:9999;
-    font-family: Arial, sans-serif;
-    overflow:auto;
-    padding:50px 20px;
-    box-sizing:border-box;
-    text-align:center;
-">
-    <div id="overlay-content" style="
-        background-color:#fff;    /* weißer Hintergrund wie Impressum */
-        color:#000;               /* Text schwarz */
-        padding:20px;
-        border-radius:8px;        /* abgerundete Ecken */
-        max-width:600px;
-        margin:auto;
-        font-family: Arial, sans-serif;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* leichter Schatten */
-        text-align:center;
-    "></div>
-</div>
-
 
 
 <!-- Chart / Diagramm -->
