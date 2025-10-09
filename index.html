@@ -873,7 +873,12 @@ window.addEventListener("resize", () => {
 });
 </script>
 
-	
+const targetWidth = 412;
+const scale = window.innerWidth / targetWidth;
+document.body.style.transform = `scale(${scale})`;
+document.body.style.transformOrigin = 'top left';
+document.body.style.width = `${targetWidth}px`;
+
 	<!-- Felder aktuelle Werte oben -->
   </body>
       <style>
