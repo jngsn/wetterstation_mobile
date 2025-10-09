@@ -551,19 +551,22 @@ function openCurrentValuesOverlay() {
             const roundedValue = Number(latestValue).toFixed(1);
 
             overlayContent.innerHTML += `
-                <div style="
-                    font-size: 2.0rem;          
-                    font-weight: bold;
-                    margin: 6px 0;             
-                    background-color: rgba(255,255,255,0.9);
-                    color: black;              
-                    padding: 6px 10px;         
-                    border-radius: 8px;
-                ">
-                    ${roundedValue}${unitHTML}<br>
-                    <span style="font-size:0.9rem; font-weight:normal; color:gray; line-height:1; margin:0;">${field.name}</span>
-                </div>
-            `;
+			    <div style="
+			        font-size: 2rem;          
+			        font-weight: bold;
+			        margin: 6px 0;             
+			        background-color: rgba(255,255,255,0.9);
+			        color: black;              
+			        padding: 6px 10px;         
+			        border-radius: 8px;
+			        line-height: 1.1;          /* engerer Abstand zwischen Zeilen */
+			        text-align: center;
+			    ">
+			        <div style="margin:0; padding:0;">${roundedValue}${unitHTML}</div>
+			        <div style="font-size:0.9rem; font-weight:normal; color:gray; margin-top:2px; line-height:1;">${field.name}</div>
+			    </div>
+			`;
+
         }
     }
 
