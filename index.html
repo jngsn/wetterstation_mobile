@@ -480,14 +480,18 @@ function updateClock() {
     const formattedTime = `${hours}:${minutes}:${seconds}`;
     const formattedDate = `${dayName}, ${day}. ${month}`;
 
-    // Uhrzeit groß, Datum kleiner und rechtsbündig
     document.getElementById("clock").innerHTML = `
-        <div style="text-align:right;">
+        <div style="text-align:right; line-height:1.1;">
             <span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span><br>
             <span style="font-size:0.7rem; color:#555;">${formattedDate}</span>
         </div>
     `;
 }
+
+// Uhr jede Sekunde aktualisieren
+setInterval(updateClock, 1000);
+updateClock(); // sofort starten
+
 
 // Uhr jede Sekunde aktualisieren
 setInterval(updateClock, 1000);
@@ -711,8 +715,8 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 <title>Wetterstation</title>
 </head>
 <body style="background-color: white;">
-<!-- Trennlinie -->
-<hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
+<!-- Abstand -->
+<div style="height:10px;"></div>-->
 	
 <!-- Überschrift -->
 <h1 style="display: flex; justify-content: space-between; align-items: center; 
