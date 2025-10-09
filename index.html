@@ -532,7 +532,7 @@ function updateCurrentValues() {
   }
 }
 
-		// Overlay öffnen
+// Overlay öffnen
 function openCurrentValuesOverlay() {
     const overlay = document.getElementById("current-values-overlay");
     const overlayContent = document.getElementById("overlay-content");
@@ -552,15 +552,15 @@ function openCurrentValuesOverlay() {
 
             overlayContent.innerHTML += `
                 <div style="
-                    font-size:2rem;
-                    font-weight:bold;
-                    margin:15px 0;
+                    font-size: 1.5rem;          /* kleinere Schrift */
+                    font-weight: bold;
+                    margin: 6px 0;             /* kleinerer Abstand zwischen Boxen */
                     background-color: rgba(255,255,255,0.1);
-                    padding:15px;
-                    border-radius:10px;
+                    padding: 6px 10px;         /* kompakter Innenabstand */
+                    border-radius: 8px;
                 ">
                     ${roundedValue}${unitHTML}<br>
-                    <span style="font-size:1rem; font-weight:normal; color:#ccc;">${field.name}</span>
+                    <span style="font-size:0.9rem; font-weight:normal; color:#ccc;">${field.name}</span>
                 </div>
             `;
         }
@@ -568,6 +568,7 @@ function openCurrentValuesOverlay() {
 
     overlay.style.display = 'block';
 }
+
 
 // Overlay schließen
 function closeCurrentValuesOverlay() {
