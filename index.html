@@ -464,27 +464,35 @@
 
 // === Aktuelle Uhrzeit und Datum rechts oben anzeigen ===
 function updateClock() {
-  const now = new Date();
+    const now = new Date();
 
-  // Deutsche Wochentage & Monate
-  const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-  const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+    // Deutsche Wochentage & Monate
+    const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+    const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 
-  const dayName = days[now.getDay()];
-  const day = now.getDate();
-  const month = months[now.getMonth()];
+    const dayName = days[now.getDay()];
+    const day = now.getDate();
+    const month = months[now.getMonth()];
 
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  
-  const formatted = `${dayName}, ${day}. ${month} - ${hours}:${minutes}`;
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
 
-  document.getElementById("clock").textContent = formatted;
+    // Optional: coole Trennung zwischen Stunden, Minuten und Sekunden
+    const formattedTime = `${hours}:${minutes}:${seconds}`;
+    const formattedDate = `${dayName}, ${day}. ${month}`;
+
+    // Styled HTML: Datum kleiner, Zeit größer und fett
+    document.getElementById("clock").innerHTML = `
+        <span style="font-size:0.7rem; color:#555;">${formattedDate}</span><br>
+        <span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span>
+    `;
 }
 
 // Uhr jede Sekunde aktualisieren
 setInterval(updateClock, 1000);
 updateClock(); // sofort starten
+
 
 		
 function updateCurrentValues() {
