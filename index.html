@@ -100,7 +100,7 @@
    var fieldList= sentFieldList;
    var channelIndex = sentChannelIndex;
    // get the Channel data with a webservice call
-   $.getJSON('https://api.thingspeak.com/channels/'+channelNumber+'/feed.json?&amp;offset=0&amp;results=2500;api_key='+key, function(data)
+   $.getJSON('https://api.thingspeak.com/channels/'+channelNumber+'/feed.json?offset=0&results=2500&api_key='+key, function(data)
    //$.getJSON('https://www.thingspeak.com/channels/'+channelNumber+'/feed.json?callback=?&amp;offset=0&amp;results=2500;key='+key, function(data)
    {
 	   // if no access
@@ -529,7 +529,8 @@ function updateCurrentValues() {
 		
       container.appendChild(box);
     }
-  }
+  } 
+  updateWeatherEmoji();
 }
 
 		// Overlay öffnen
@@ -614,7 +615,7 @@ function updateWeatherEmoji() {
         emoji = "🌤️"; // Mild/Sonnig
     }
 
-    document.getElementById("header-title").innerHTML = `${emoji}Wetterstation`;
+    document.getElementById("header-title").innerHTML = `Wetterstation ${emoji}`;
 }
 
 // === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
@@ -623,63 +624,6 @@ function startWeatherEmojiUpdater() {
     updateWeatherEmoji();
     // Dann jede Minute aktualisieren
     setInterval(updateWeatherEmoji, 60000);
-}
-
-
-function createSeriesButtons() {
-    const container = document.getElementById("buttons-container");
-
-    // Container als flexbox für gleichmäßige Anordnung
-    container.innerHTML = ''; // vorherige Buttons löschen
-    container.style.display = 'flex';
-    container.style.flexWrap = 'wrap';
-    container.style.alignItems = 'center'; // vertikal zentrieren
-    container.style.gap = '2px';           // Abstand zwischen Buttons
-
-    for (let channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) {
-        const channel = channelKeys[channelIndex];
-
-        for (let i = 0; i < channel.fieldList.length; i++) {
-            const field = channel.fieldList[i];
-
-            // Nur bestimmte Buttons erstellen
-            if (field.name.includes("Tages min. Temperatur") || field.name.includes("Tages max. Temperatur")) {
-                continue; // Button nicht erzeugen
-            }
-			// Chartbuttons
-            const button = document.createElement('button');
-            button.style.width = '56px';
-            button.style.minHeight = '40px';      // garantiert Mindesthöhe
-            button.style.fontSize = '8px';
-            button.style.fontWeight = 'bold';
-            button.style.margin = '5px';
-            button.style.whiteSpace = 'normal';   // Text darf umbrechen
-            button.style.textAlign = 'center';
-            button.style.padding = '0';         // innenabstand
-            button.style.boxSizing = 'border-box';
-            button.style.display = 'flex';
-            button.style.alignItems = 'center';      // Text vertikal zentrieren
-            button.style.justifyContent = 'center';  // Text horizontal zentrieren
-            button.textContent = field.name;
-            button.style.border = 'none';          // kein Rand
-            button.style.outline = 'none';         // kein Fokus-Rahmen
-
-            // Statusfarbe initial setzen
-            const series = dynamicChart.series[field.series];
-            button.style.backgroundColor = series.visible ? '#e6eaff' : '#f7f7f7'; // blau = sichtbar, grau = ausgeblendet
-            button.style.color = series.visible ? 'black' : 'gray';
-
-            // Klick-Handler
-            button.onclick = function() {
-                series.visible ? series.hide() : series.show();
-                // Buttonfarbe aktualisieren
-                button.style.backgroundColor = series.visible ? '#e6eaff' : '#f7f7f7'; // blau = sichtbar, grau = ausgeblendet
-                button.style.color = series.visible ? 'black' : 'gray';
-            };
-
-            container.appendChild(button);
-        }
-    }
 }
 
 
@@ -757,7 +701,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 <!-- Überschrift -->
 <h1 style="display: flex; justify-content: space-between; align-items: center; 
            font-family: Arial; font-size: 1.8rem; margin: 2px;">
-  <span id="header-title">🌤️Wetterstation</span>
+  <span id="header-title">Wetterstation ⌛</span>
   <span id="clock" style="font-size: 1.0rem; font-weight: bold; color: #777777;"></span>
 </h1>
 	
@@ -814,13 +758,19 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 
 
 <!-- Chart / Diagramm -->
-<div id="chart-container" style="height: 300px;"><br>
-  Daten werden geladen...<br>
+<div id="chart-container" style="
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-weight: bold;
+  color: #444;
+">
+  Daten werden geladen...
 </div>
 
-<!-- Buttons zum ein/ausschalten der Linien -->
-<!--<div id="buttons-container" style="margin-top:10px;"></div>
-<div style="height:20px;"></div>-->
+
 
 <!-- Steuerelemente des Charts - Ausgeblendet -->
 <div id="below chart"> <button style="width: 110px; margin-top: -18px;" value="Hide All"
@@ -873,7 +823,12 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 
 
 <!-- Impressum Button -->
-<button onclick="document.getElementById('impressum').style.display='block'" 
+<button onclick="
+    const im = document.getElementById('impressum');
+    im.style.display = 'flex';
+    im.style.justifyContent = 'center';
+    im.style.alignItems = 'center';
+" 
         style="position:fixed; bottom:-40px; left:50%; transform:translateX(-50%);
                border:none; outline:none; border-radius: 3px;
                font-size:0.9em; color:#666; cursor:pointer;">
@@ -881,10 +836,33 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
 </button>
 
 <!-- Overlay -->
-<div id="impressum" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-     background-color:rgba(0,0,0,0.7); color:white; padding:50px; box-sizing:border-box; overflow:auto;">
-  <div style="background-color:#fff; color:#000; padding:20px; border-radius:8px; max-width:600px; margin:auto; font-family: Arial, sans-serif;">
-    <h2>Impressum</h2>
+<div id="impressum" style="
+    display:none;             /* unsichtbar bis Klick */
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color: rgba(0,0,0,0.0); /* dunkler Hintergrund wie Debug */
+    color:white;
+    padding:50px;
+    box-sizing:border-box;
+    overflow:auto;
+    z-index: 9999;
+">
+  <div style="
+      background-color: rgba(0,0,0,0.85); /* dunkles Panel wie Debug */
+      padding:20px;
+      border-radius:10px;
+      max-width:600px;
+      width: 100%;
+      font-family: monospace, Arial, sans-serif;
+      color: #fff;
+      line-height: 1.0;
+      margin:auto;
+      text-align: left;
+  ">
+    <h2 style="color:#fff;">Impressum</h2>
 
     <p><strong>Angaben gemäß § 5 TMG:</strong><br>
     Jan Gassen<br>
@@ -893,22 +871,36 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     Deutschland</p>
 
     <p><strong>Kontakt:</strong><br>
-    E-Mail: jg-pp [at] mail [dot] de<br></p>
+    jg-pp [at] mail [dot] de<br></p>
 
-    <p><strong>Haftungsausschluss:</strong><br>
+    <p style="font-size:0.8rem;"><strong>Haftungsausschluss:</strong><br>
     Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links.<br>Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.</p>
+
+    <p style="font-size:0.8rem;"><strong>Hinweis:</strong><br>
+    Diese Website ist ein privates / nicht kommerzielles Projekt.</p>
+
+
     
-    <p><strong>Hinweis:</strong> Diese Website ist ein privates / nicht kommerzielles Projekt.</p>
-    <button onclick="document.getElementById('impressum').style.display='none'">Schließen</button>
+    <button onclick="document.getElementById('impressum').style.display='none'" style="
+        margin-top:10px;
+        padding:8px 16px;
+        font-size:0.9rem;
+        border:none;
+        border-radius:5px;
+        background-color:#444;
+        color:#fff;
+        cursor:pointer;
+    ">Schließen</button>
   </div>
 </div>
+
 <!-- debuginfos -->	
 <button id="debug-toggle" style="
     position: fixed;
     bottom: -40px;
     left: 8px;
     background: transparent;
-    color: gray;
+    color: lightgray;
     border: none;
     padding: 4px 8px;
     font-size: 0.8rem;
