@@ -583,40 +583,46 @@ function closeCurrentValuesOverlay() {
 function updateWeatherEmoji() {
     const channel = channelKeys[0]; // erster Kanal
 
-    // Feste Felder abrufen
     const tempField = channel.fieldList.find(f => f.field === 1);
     const humField = channel.fieldList.find(f => f.field === 2);
     const pressureField = channel.fieldList.find(f => f.field === 8);
+    const rainField = channel.fieldList.find(f => f.field === 7); // optional
 
-    // Prüfen, ob die Felder existieren und Daten enthalten
     if (!tempField || !humField || !pressureField) return;
-    if (!tempField.data || !tempField.data.length) return;
-    if (!humField.data || !humField.data.length) return;
-    if (!pressureField.data || !pressureField.data.length) return;
+    if (!tempField.data.length || !humField.data.length || !pressureField.data.length) return;
 
     const latestTemp = tempField.data[tempField.data.length - 1][1];
     const latestHum = humField.data[humField.data.length - 1][1];
     const latestPressure = pressureField.data[pressureField.data.length - 1][1];
+    const latestRain = rainField && rainField.data.length ? rainField.data[rainField.data.length - 1][1] : 0;
 
-    let emoji = "🌡️"; // Standard
+    // Berechne Drucktrend (letzte 3 Werte)
+    let pressureTrend = 0;
+    if (pressureField.data.length >= 3) {
+        const n = pressureField.data.length;
+        pressureTrend = latestPressure - pressureField.data[n - 3][1];
+    }
 
-    // Logik für Emoji basierend auf mehreren Parametern
+    let emoji = "🌤️"; // Standard mild
+
     if (latestTemp <= 0) {
-        emoji = "❄️"; // Kalt/Schnee
-    } else if (latestHum > 80 && latestTemp < 20) {
+        emoji = "❄️"; // Schnee/Frost
+    } else if (latestRain > 0) {
         emoji = "🌧️"; // Regen
-    } else if (latestHum < 50 && latestTemp > 25) {
+    } else if (latestHum > 80 && latestTemp < 20) {
+        emoji = "☁️"; // Wolkig/feucht
+    } else if ((latestHum > 60 && latestPressure < 1000) || pressureTrend < -3) {
+        emoji = "⛈️"; // Gewitter möglich
+    } else if (latestTemp > 25 && latestHum < 50) {
         emoji = "☀️"; // Sonnig/Heiß
-    } else if (latestHum > 60 && latestPressure < 1000) {
-        emoji = "⛈️"; // Gewitterwahrscheinlichkeit
     } else if (latestHum >= 50 && latestTemp <= 15) {
         emoji = "🌥️"; // Wolkig/Kühl
-    } else {
-        emoji = "🌤️"; // Mild/Sonnig
     }
 
     document.getElementById("header-title").innerHTML = `Wetterstation ${emoji}`;
 }
+
+
 
 // === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
 function startWeatherEmojiUpdater() {
@@ -1030,3 +1036,4 @@ window.addEventListener('resize', applyScale);
       
     </style>
 </html>
+
