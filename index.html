@@ -2,751 +2,681 @@
 <html>
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+      html {
+        font-size: 16px;
+        /* 1rem = 16px */
+      }
 
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<style>
-		  html {
-		    font-size: 16px; /* 1rem = 16px */
-		  }
-		  body {
-		    -webkit-text-size-adjust: 100%; /* verhindert iOS-Autozoom */
-		    font-family: Arial, sans-serif; /* oder dein gewünschter Font */
-		  }
-		</style>
-
-	  
+      body {
+        -webkit-text-size-adjust: 100%;
+        /* verhindert iOS-Autozoom */
+        font-family: Arial, sans-serif;
+      }
+    </style>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script type="text/javascript">
-    
-	var dynamicChart;
-	var channelsLoaded = 0;
-	var channelKeys =[];
-	channelKeys.push({
-            channelNumber: 1304805,
-            name: 'Wetterstation',
-            key: '1H5R2K6OL295TNP8',
-            fieldList: [
-                {field:1, axis:'T', unit:'°C'},
-                {field:2, axis:'H', unit:'%'},
-                {field:3, axis:'T', unit:'g/m³'},
-                {field:4, axis:'T', unit:'°C'},
-                {field:5, axis:'T', unit:'°C'},
-                {field:6, axis:'T', unit:'°C'},
-                {field:7, axis:'T', unit:'mm'},   // spezielle Einheit für Feld 7
-                {field:8, axis:'P', unit:''}      // keine Einheit für Feld 8
-            ]
-        });
-
-	                
-	// user's timezone offset
-	var myOffset = new Date().getTimezoneOffset();
-	
-	// converts date format from JSON
-	function getChartDate(d) {
-	    return Date.UTC(d.substring(0,4), d.substring(5,7)-1, d.substring(8,10), d.substring(11,13), d.substring(14,16), d.substring(17,19)) - (myOffset * 60000);
-	}
-	
-	      // Hide all series, via 'Hide All' button.  Then user can click on serries name in legent to show series of interest.      
-	function HideAll(){
-	  for (var index=0; index<dynamicChart.series.length; index++)  // iterate through each series
-	  { 
-	    if (dynamicChart.series[index].name == 'Navigator')
-	      continue;
-	    dynamicChart.series[index].hide();
-	    //window.console && console.log('Series Number:',index,' Name:',dynamicChart.series[index].name);
-	  }
-	  //});
-	            
-	}
-	      
-	      //  This is where the chart is generated.
-	$(document).ready(function() 
-	{
-	 //Add Channel Load Menu
-	 var menu=document.getElementById("Channel Select");
-	 for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
-	 {
-	   window.console && console.log('Name',channelKeys[channelIndex].name);
-	   var menuOption =new Option(channelKeys[channelIndex].name,channelIndex);
-	   menu.options.add(menuOption,channelIndex);
-	 }
-	 var last_date; // variable for the last date added to the chart
-	 window.console && console.log('Testing console');
-	 //make series numbers for each field
-	 var seriesCounter=0
-	 for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
-	  {
-	    for (var fieldIndex=0; fieldIndex<channelKeys[channelIndex].fieldList.length; fieldIndex++)  // iterate through each channel
-	      {
-	        channelKeys[channelIndex].fieldList[fieldIndex].series = seriesCounter; 
-	        seriesCounter++;
-	      }
-	  }
- //make calls to load data from each channel into channelKeys array now
- // draw the chart when all the data arrives, later asyncronously add history
- for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
-  {
-    channelKeys[channelIndex].loaded = false;  
-    loadThingSpeakChannel(channelIndex,channelKeys[channelIndex].channelNumber,channelKeys[channelIndex].key,channelKeys[channelIndex].fieldList);
-    
-  }
- //window.console && console.log('Channel Keys',channelKeys);
- 
- // load the most recent 2500 points (fast initial load) from a ThingSpeak channel into a data[] array and return the data[] array
- function loadThingSpeakChannel(sentChannelIndex,channelNumber,key,sentFieldList) {
-   var fieldList= sentFieldList;
-   var channelIndex = sentChannelIndex;
-   // get the Channel data with a webservice call
-   $.getJSON('https://api.thingspeak.com/channels/'+channelNumber+'/feed.json?offset=0&results=2500&api_key='+key, function(data)
-   //$.getJSON('https://www.thingspeak.com/channels/'+channelNumber+'/feed.json?callback=?&amp;offset=0&amp;results=2500;key='+key, function(data)
-   {
-	   // if no access
-	   if (data == '-1') {
-       $('#chart-container').append('This channel is not public.  To embed charts, the channel must be public or a read key must be specified.');
-       window.console && console.log('Thingspeak Data Loading Error');
-     }
-     for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++)  // iterate through each field
-     {
-       fieldList[fieldIndex].data =[];
-       for (var h=0; h<data.feeds.length; h++)  // iterate through each feed (data point)
-       {
-         var p = []//new Highcharts.Point();
-         var fieldStr = "data.feeds["+h+"].field"+fieldList[fieldIndex].field;
-		  	 var v = eval(fieldStr);
- 		  	p[0] = getChartDate(data.feeds[h].created_at);
-	 	  	p[1] = parseFloat(v);
-	 	  	// if a numerical value exists add it
-	   		if (!isNaN(parseInt(v))) { fieldList[fieldIndex].data.push(p); }
-       }
-       fieldList[fieldIndex].name = eval("data.channel.field"+fieldList[fieldIndex].field);
-	   }
-     window.console && console.log('getJSON field name:',fieldList[0].name);
-     channelKeys[channelIndex].fieldList=fieldList;
-     channelKeys[channelIndex].loaded=true;
-     channelsLoaded++;
-     window.console && console.log('channels Loaded:',channelsLoaded);
-     window.console && console.log('channel index:',channelIndex);
-     if (channelsLoaded==channelKeys.length){createChart();}
-	 })
-   .fail(function() { alert('getJSON request failed! '); });
- }
-
-  function updateSunTimes() {
-      const latitude = 49.744;  // Hochspeyer
-      const longitude = 7.713;  // Hochspeyer
-      const now = new Date();
-
-      const times = SunCalc.getTimes(now, latitude, longitude);
-      const sunrise = times.sunrise.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      const sunset  = times.sunset.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      const moon = getMoonPhaseEmoji(now);
-
-      document.getElementById("sun-times").innerText = `🌅 ${sunrise} | 🌇 ${sunset} | ${moon}`;
-  }
-
-
-  function getMoonPhaseEmoji(date = new Date()) {
-      const moonIllum = SunCalc.getMoonIllumination(date);
-      const phase = moonIllum.phase; // 0 = Neumond, 0.25 = erstes Viertel, 0.5 = Vollmond, 0.75 = letztes Viertel
-
-      if (phase < 0.03 || phase > 0.97) return "🌑"; // Neumond
-      else if (phase < 0.22) return "🌒";             // Zunehmender Mond
-      else if (phase < 0.28) return "🌓";             // Erstes Viertel
-      else if (phase < 0.47) return "🌔";             // Zunehmender Mond
-      else if (phase < 0.53) return "🌕";             // Vollmond
-      else if (phase < 0.72) return "🌖";             // Abnehmender Mond
-      else if (phase < 0.78) return "🌗";             // Letztes Viertel
-      else return "🌘";                               // Abnehmender Mond
-  }
-
-  
- // create the chart when all data is loaded
- function createChart() {
-	// specify the chart options
-	var chartOptions = {
-	  chart: 
-    {
-		marginTop: 10,    // Abstand oben
-	    marginBottom: 60,  // Abstand unten (Legende / Navigator)
-	  renderTo: 'chart-container',
-      zoomType:'y',
-			events: 
-      {
-        load: function() 
-        {
-				  if ('true' === 'true' && (''.length < 1 && ''.length < 1 && ''.length < 1 && ''.length < 1 && ''.length < 1)) 
+      var dynamicChart;
+      var channelsLoaded = 0;
+      var channelKeys = [];
+      channelKeys.push({
+        channelNumber: 1304805,
+        name: 'Wetterstation',
+        key: '1H5R2K6OL295TNP8',
+        fieldList: [{
+            field: 1,
+            axis: 'T',
+            unit: '°C'
+          }, {
+            field: 2,
+            axis: 'H',
+            unit: '%'
+          }, {
+            field: 3,
+            axis: 'T',
+            unit: 'g/m³'
+          }, {
+            field: 4,
+            axis: 'T',
+            unit: '°C'
+          }, {
+            field: 5,
+            axis: 'T',
+            unit: '°C'
+          }, {
+            field: 6,
+            axis: 'T',
+            unit: '°C'
+          }, {
+            field: 7,
+            axis: 'T',
+            unit: 'mm'
+          }, // spezielle Einheit für Feld 7
           {
-            // If the update checkbox is checked, get latest data every 15 seconds and add it to the chart
-						setInterval(function() 
-            {
-             if (document.getElementById("Update").checked)
-             {
-              for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
-              {  
-               (function(channelIndex)
-               {
-                // get the data with a webservice call
-				$.getJSON('https://api.thingspeak.com/channels/'+channelKeys[channelIndex].channelNumber+'/feed/last.json?&amp;offset=0&amp;location=false;api_key='+channelKeys[channelIndex].key, function(data)
-				//$.getJSON('https://www.thingspeak.com/channels/'+channelKeys[channelIndex].channelNumber+'/feed/last.json?callback=?&amp;offset=0&amp;location=false;key='+channelKeys[channelIndex].key, function(data)   
-                { 
-                  for (var fieldIndex=0; fieldIndex<channelKeys[channelIndex].fieldList.length; fieldIndex++)
-                  {
-                    // if data exists
-                    var fieldStr = "data.field"+channelKeys[channelIndex].fieldList[fieldIndex].field;
-                    var chartSeriesIndex=channelKeys[channelIndex].fieldList[fieldIndex].series;
-                    if (data && eval(fieldStr)) 
-                    {
-                      var p = []//new Highcharts.Point();
-                      var v = eval(fieldStr);
-                      p[0] = getChartDate(data.created_at);
-                      p[1] = parseFloat(v);
-                      // get the last date if possible
-                      if (dynamicChart.series[chartSeriesIndex].data.length > 0) 
-                      { 
-                        last_date = dynamicChart.series[chartSeriesIndex].data[dynamicChart.series[chartSeriesIndex].data.length-1].x; 
-                      }
-                      var shift = false ; //default for shift
-                      // if a numerical value exists and it is a new date, add it
-                      if (!isNaN(parseInt(v)) && (p[0] != last_date)) 
-                      {
-                        dynamicChart.series[chartSeriesIndex].addPoint(p, true, shift);
-                      }   
-                    }
-                    //window.console && console.log('channelKeys:',channelKeys);
-                    //window.console && console.log('chartSeriesIndex:',chartSeriesIndex);
-                    //window.console && console.log('channel index:',channelIndex);
-                    //window.console && console.log('field index:',fieldIndex);
-                    //window.console && console.log('update series name:',dynamicChart.series[chartSeriesName].name);
-                    //window.console && console.log('channel keys name:',channelKeys[channelIndex].fieldList[fieldIndex].name);
-                  }
-                  
-                  
-                });
-               })(channelIndex);
-              }
-              // Nach dem Update der Series auch die Anzeige aktualisieren:
-              updateCurrentValues();
-             }
-						}, 10000);
-					}
-				}
-			}
-		},
-		rangeSelector: {
-			buttons: [{
-				count: 30,
-				type: 'minute',
-				text: '30M'
-			},{
-				count: 1,
-				type: 'hour',
-				text: '1H'
-      },{
-				count: 2,
-				type: 'hour',
-				text: '2H'
-      },{
-				count: 4,
-				type: 'hour',
-				text: '4H'
-      }, {
-				count: 12,
-				type: 'hour',
-				text: '12H'
-      }, {
-				count: 1,
-				type: 'day',
-				text: 'D'
-      }, {
-				count: 1,
-				type: 'week',
-				text: 'W'
-      }, {
-				count: 1,
-				type: 'month',
-				text: 'M'
-      }, {
-				count: 1,
-				type: 'year',
-				text: 'Y'
-			}, {
-				type: 'all',
-				text: 'All'
-			}],
-			inputEnabled: false,
-			selected: 3,
-			buttonTheme: {
-			  width: 24,       // Breite der Buttons
-			  height: 15,      // Höhe der Buttons
-			  style: {
-						fontSize: '8px'
-					}
-			  }
-		},
-    title: {
-			text: ''
-		},
-		credits: {
-  		  enabled: false
-		},
-
-		plotOptions: {
-		  line: {
-        gapSize:5
-				//color: '#d62020'
-				//  },
-				//  bar: {
-				//color: '#d52020'
-				//  },
-				//  column: {
-			},
-			series: {
-			  marker: {
-				  radius: 2
-				},
-				animation: true,
-				step: false,
-        turboThrehold:1000,
-				borderWidth: 0
-			}
-		},
-    tooltip: {
-      valueDecimals: 1,
-      //valueSuffix: '°F',
-      xDateFormat:'%Y-%m-%d<br/>%H:%M:%S',
-		style: {
-        fontSize: '9px',   // 👈 Schriftgröße ändern
-        fontFamily: 'Arial, sans-serif',
-        color: '#333'
-    	}
-    },
-		xAxis: {
-		  type: 'datetime',
-      			ordinal:false,
-      			min: Date.UTC(2013,02,28),
-				dateTimeLabelFormats : {
-        			hour: '%k %p',
-        			minute: '%k:%M'
-        			//hour: '%l %p',
-        			//minute: '%l:%M %p'
-      		},
-     		 labels: {
-        style: {
-				fontSize: '8px', // Schriftgröße ändern
-				color: '#333'     // optional, Schriftfarbe
-		       }
-		    },
-		    title: {
-		        text: null // Titel entfernen
-		    }
-		},
-		yAxis: [{
-            title: {
-                //text: 'Temperatur (°C)'
-            },
-            id: 'T',
-			labels: {
-					style: {
-                    fontSize: '8px' // optional Schriftgröße anpassen
-                  }
-            }
-    }, {
-            title: {
-                //text: 'Luftfeuchtigkeit (g/m²)'
-            },
-            opposite: false,
-            id: 'H',
-            labels: {
-                  align: 'left', // linksbündig innerhalb des Achsenbereichs
-                  x: 0, // verschiebt die Achsenwerte nach links
-                  y: -2,
-                  style: {
-                      fontSize: '8px' // optional Schriftgröße anpassen
-                  }
-            }
-    }, {
-            title: {
-                //text: 'Luftdruck'
-            },
-            opposite: false,
-            id: 'P',
-            labels: {
-                  align: 'left', // linksbündig innerhalb des Achsenbereichs
-                  x: 0, // verschiebt die Achsenwerte nach links
-                  y: 11,
-                  style: {
-                      fontSize: '8px' // optional Schriftgröße anpassen
-                  }
-            }
-    }],
-		exporting: {
-		enabled: true,
-		sourceWidth: 1500, 
-                sourceHeight: 1000,
-                scale: 1 ,
-      csv: {
-        dateFormat: '%d/%m/%Y %H:%M:%S'
-        }
-		},
-		legend: {
-                    enabled: true,
-                    itemStyle: {
-                        fontSize: '8px',
-                        fontWeight: 'normal',
-                        cursor: 'pointer'
-                    },
-                    itemHoverStyle: {
-                        color: '#000000'
-                    },
-                    symbolHeight: 8, // Höhe des Legenden-Kästchens
-                    symbolWidth: 8,   // Breite des Legenden-Kästchens
-					itemMarginTop: 0,     // Abstand oberhalb jedes Eintrags
-    				itemMarginBottom: 0,  // Abstand unterhalb jedes Eintrags
-					y: 20                   // verschiebt die Legende näher an den Chart
-                },
-    navigator: {
-	    enabled: false,
-	    outlineWidth: 0,            // Rahmen entfernen
-	    maskFill: 'rgba(0,0,0,0)',  // Schattierung transparent
-	    handles: {
-	        backgroundColor: 'transparent',
-	        borderColor: 'transparent'
-	    }
-	},
-	scrollbar: {
-	    enabled: false               // Scrollbalken komplett deaktivieren
-	},
-	
-	series: []                       // 👈 Jetzt auf der richtigen Ebene
-
-    //series: [{data:[[getChartDate("2013-06-16T00:32:40Z"),75]]}]      
-	};
-
-	// add all Channel data to the chart
-  for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
-  {
-    for (var fieldIndex=0; fieldIndex<channelKeys[channelIndex].fieldList.length; fieldIndex++)  // add each field
-    {
-      window.console && console.log('Channel '+channelIndex+' field '+fieldIndex);
-      chartOptions.series.push({data:channelKeys[channelIndex].fieldList[fieldIndex].data,
-                                index:channelKeys[channelIndex].fieldList[fieldIndex].series,
-                                yAxis:channelKeys[channelIndex].fieldList[fieldIndex].axis,
-                                //visible:false,
-                              name: channelKeys[channelIndex].fieldList[fieldIndex].name});
-    }
-    updateCurrentValues();
-  }
-	// set chart labels here so that decoding occurs properly
-	//chartOptions.title.text = data.channel.name;
-	// chartOptions.xAxis.title.text = 'Uhrzeit';
-
-	// draw the chart
-  dynamicChart = new Highcharts.StockChart(chartOptions);
-  
-  // Felder bei Start ausbleden
-  dynamicChart.series[4].hide();  
-  dynamicChart.series[5].hide();  
-
-  // Buttons erstellen
-  createSeriesButtons();
-
-	// Emoji-Updater starten, **nachdem die Daten da sind**
-	updateWeatherEmoji();       // Emoji sofort korrekt setzen
-	startWeatherEmojiUpdater(); // dann jede Minute aktualisieren
-  
-  // update series number to account for the navigator series (The historical series at the bottom) which is the first series.
-  for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
-  {
-    for (var fieldIndex=0; fieldIndex<channelKeys[channelIndex].fieldList.length; fieldIndex++)  // and each field
-    {
-      for (var seriesIndex=0; seriesIndex<dynamicChart.series.length; seriesIndex++)  // compare each series name
-      {
-        if (dynamicChart.series[seriesIndex].name == channelKeys[channelIndex].fieldList[fieldIndex].name)
+            field: 8,
+            axis: 'P',
+            unit: ''
+          } // keine Einheit für Feld 8
+        ]
+      });
+      // user's timezone offset
+      var myOffset = new Date().getTimezoneOffset();
+      // converts date format from JSON
+      function getChartDate(d) {
+        return Date.UTC(d.substring(0, 4), d.substring(5, 7) - 1, d.substring(8, 10), d.substring(11, 13), d.substring(14, 16), d.substring(17, 19)) - (myOffset * 60000);
+      }
+      // Hide all series, via 'Hide All' button.  Then user can click on serries name in legent to show series of interest.      
+      function HideAll() {
+        for (var index = 0; index < dynamicChart.series.length; index++) // iterate through each series
         {
-          channelKeys[channelIndex].fieldList[fieldIndex].series = seriesIndex;
+          if (dynamicChart.series[index].name == 'Navigator') continue;
+          dynamicChart.series[index].hide();
+          //window.console && console.log('Series Number:',index,' Name:',dynamicChart.series[index].name);
         }
+        //});
       }
-    }
-  }          
-  // add all history
-  //dynamicChart.showLoading("Loading History..." );
-  window.console && console.log('Channels: ',channelKeys.length);
-  for (var channelIndex=0; channelIndex<channelKeys.length; channelIndex++)  // iterate through each channel
-  {
-    window.console && console.log('channelIndex: ',channelIndex);
-    (function(channelIndex)
-      {
-        //load only 1 set of 8000 points
-        loadChannelHistory(channelIndex,channelKeys[channelIndex].channelNumber,channelKeys[channelIndex].key,channelKeys[channelIndex].fieldList,0,1); 
-      }
-    )(channelIndex);
-  }
-  // Emoji-Updater starten
-    startWeatherEmojiUpdater();
- }
+      //  This is where the chart is generated.
+      $(document).ready(function() {
+        //Add Channel Load Menu
+        var menu = document.getElementById("Channel Select");
+        for (var channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) // iterate through each channel
+        {
+          window.console && console.log('Name', channelKeys[channelIndex].name);
+          var menuOption = new Option(channelKeys[channelIndex].name, channelIndex);
+          menu.options.add(menuOption, channelIndex);
+        }
+        var last_date; // variable for the last date added to the chart
+        window.console && console.log('Testing console');
+        //make series numbers for each field
+        var seriesCounter = 0
+        for (var channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) // iterate through each channel
+        {
+          for (var fieldIndex = 0; fieldIndex < channelKeys[channelIndex].fieldList.length; fieldIndex++) // iterate through each channel
+          {
+            channelKeys[channelIndex].fieldList[fieldIndex].series = seriesCounter;
+            seriesCounter++;
+          }
+        }
+        //make calls to load data from each channel into channelKeys array now
+        // draw the chart when all the data arrives, later asyncronously add history
+        for (var channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) // iterate through each channel
+        {
+          channelKeys[channelIndex].loaded = false;
+          loadThingSpeakChannel(channelIndex, channelKeys[channelIndex].channelNumber, channelKeys[channelIndex].key, channelKeys[channelIndex].fieldList);
+        }
+        //window.console && console.log('Channel Keys',channelKeys);
+        // load the most recent 2500 points (fast initial load) from a ThingSpeak channel into a data[] array and return the data[] array
+        function loadThingSpeakChannel(sentChannelIndex, channelNumber, key, sentFieldList) {
+          var fieldList = sentFieldList;
+          var channelIndex = sentChannelIndex;
+          // get the Channel data with a webservice call
+          $.getJSON('https://api.thingspeak.com/channels/' + channelNumber + '/feed.json?offset=0&results=2500&api_key=' + key, function(data)
+            //$.getJSON('https://www.thingspeak.com/channels/'+channelNumber+'/feed.json?callback=?&amp;offset=0&amp;results=2500;key='+key, function(data)
+            {
+              // if no access
+              if (data == '-1') {
+                $('#chart-container').append('This channel is not public.  To embed charts, the channel must be public or a read key must be specified.');
+                window.console && console.log('Thingspeak Data Loading Error');
+              }
+              for (var fieldIndex = 0; fieldIndex < fieldList.length; fieldIndex++) // iterate through each field
+              {
+                fieldList[fieldIndex].data = [];
+                for (var h = 0; h < data.feeds.length; h++) // iterate through each feed (data point)
+                {
+                  var p = [] //new Highcharts.Point();
+                  var fieldStr = "data.feeds[" + h + "].field" + fieldList[fieldIndex].field;
+                  var v = eval(fieldStr);
+                  p[0] = getChartDate(data.feeds[h].created_at);
+                  p[1] = parseFloat(v);
+                  // if a numerical value exists add it
+                  if (!isNaN(parseInt(v))) {
+                    fieldList[fieldIndex].data.push(p);
+                  }
+                }
+                fieldList[fieldIndex].name = eval("data.channel.field" + fieldList[fieldIndex].field);
+              }
+              window.console && console.log('getJSON field name:', fieldList[0].name);
+              channelKeys[channelIndex].fieldList = fieldList;
+              channelKeys[channelIndex].loaded = true;
+              channelsLoaded++;
+              window.console && console.log('channels Loaded:', channelsLoaded);
+              window.console && console.log('channel index:', channelIndex);
+              if (channelsLoaded == channelKeys.length) {
+                createChart();
+              }
+            }).fail(function() {
+            alert('getJSON request failed! ');
+          });
+        }
 
-  updateSunTimes();              // einmal sofort
- 
-});
+        function updateSunTimes() {
+          const latitude = 49.744; // Hochspeyer
+          const longitude = 7.713; // Hochspeyer
+          const now = new Date();
+          const times = SunCalc.getTimes(now, latitude, longitude);
+          const sunrise = times.sunrise.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          const sunset = times.sunset.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          const moon = getMoonPhaseEmoji(now);
+          document.getElementById("sun-times").innerText = `🌅 ${sunrise} | 🌇 ${sunset} | ${moon}`;
+        }
 
-function updateClock() {
-    const now = new Date();
+        function getMoonPhaseEmoji(date = new Date()) {
+          const moonIllum = SunCalc.getMoonIllumination(date);
+          const phase = moonIllum.phase; // 0 = Neumond, 0.25 = erstes Viertel, 0.5 = Vollmond, 0.75 = letztes Viertel
+          if (phase < 0.03 || phase > 0.97) return "🌑"; // Neumond
+          else if (phase < 0.22) return "🌒"; // Zunehmender Mond
+          else if (phase < 0.28) return "🌓"; // Erstes Viertel
+          else if (phase < 0.47) return "🌔"; // Zunehmender Mond
+          else if (phase < 0.53) return "🌕"; // Vollmond
+          else if (phase < 0.72) return "🌖"; // Abnehmender Mond
+          else if (phase < 0.78) return "🌗"; // Letztes Viertel
+          else return "🌘"; // Abnehmender Mond
+        }
+        // create the chart when all data is loaded
+        function createChart() {
+          // specify the chart options
+          var chartOptions = {
+            chart: {
+              marginTop: 10, // Abstand oben
+              marginBottom: 60, // Abstand unten (Legende / Navigator)
+              renderTo: 'chart-container',
+              zoomType: 'y',
+              events: {
+                load: function() {
+                  if ('true' === 'true' && (''.length < 1 && ''.length < 1 && ''.length < 1 && ''.length < 1 && ''.length < 1)) {
+                    // If the update checkbox is checked, get latest data every 15 seconds and add it to the chart
+                    setInterval(function() {
+                      if (document.getElementById("Update").checked) {
+                        for (var channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) // iterate through each channel
+                        {
+                          (function(channelIndex) {
+                            // get the data with a webservice call
+                            $.getJSON('https://api.thingspeak.com/channels/' + channelKeys[channelIndex].channelNumber + '/feed/last.json?&amp;offset=0&amp;location=false;api_key=' + channelKeys[channelIndex].key, function(data) {
+                              for (var fieldIndex = 0; fieldIndex < channelKeys[channelIndex].fieldList.length; fieldIndex++) {
+                                // if data exists
+                                var fieldStr = "data.field" + channelKeys[channelIndex].fieldList[fieldIndex].field;
+                                var chartSeriesIndex = channelKeys[channelIndex].fieldList[fieldIndex].series;
+                                if (data && eval(fieldStr)) {
+                                  var p = [] //new Highcharts.Point();
+                                  var v = eval(fieldStr);
+                                  p[0] = getChartDate(data.created_at);
+                                  p[1] = parseFloat(v);
+                                  // get the last date if possible
+                                  if (dynamicChart.series[chartSeriesIndex].data.length > 0) {
+                                    last_date = dynamicChart.series[chartSeriesIndex].data[dynamicChart.series[chartSeriesIndex].data.length - 1].x;
+                                  }
+                                  var shift = false; //default for shift
+                                  // if a numerical value exists and it is a new date, add it
+                                  if (!isNaN(parseInt(v)) && (p[0] != last_date)) {
+                                    dynamicChart.series[chartSeriesIndex].addPoint(p, true, shift);
+                                  }
+                                }
+                              }
+                            });
+                          })(channelIndex);
+                        }
+                        // Nach dem Update der Series auch die Anzeige aktualisieren:
+                        updateCurrentValues();
+                      }
+                    }, 10000);
+                  }
+                }
+              }
+            },
+            rangeSelector: {
+              buttons: [{
+                count: 30,
+                type: 'minute',
+                text: '30M'
+              }, {
+                count: 1,
+                type: 'hour',
+                text: '1H'
+              }, {
+                count: 2,
+                type: 'hour',
+                text: '2H'
+              }, {
+                count: 4,
+                type: 'hour',
+                text: '4H'
+              }, {
+                count: 12,
+                type: 'hour',
+                text: '12H'
+              }, {
+                count: 1,
+                type: 'day',
+                text: 'D'
+              }, {
+                count: 1,
+                type: 'week',
+                text: 'W'
+              }, {
+                count: 1,
+                type: 'month',
+                text: 'M'
+              }, {
+                count: 1,
+                type: 'year',
+                text: 'Y'
+              }, {
+                type: 'all',
+                text: 'All'
+              }],
+              inputEnabled: false,
+              selected: 3,
+              buttonTheme: {
+                width: 24, // Breite der Buttons
+                height: 15, // Höhe der Buttons
+                style: {
+                  fontSize: '8px'
+                }
+              }
+            },
+            title: {
+              text: ''
+            },
+            credits: {
+              enabled: false
+            },
+            plotOptions: {
+              line: {
+                gapSize: 5
+              },
+              series: {
+                marker: {
+                  radius: 2
+                },
+                animation: true,
+                step: false,
+                turboThrehold: 1000,
+                borderWidth: 0
+              }
+            },
+            tooltip: {
+              valueDecimals: 1,
+              //valueSuffix: '°F',
+              xDateFormat: '%Y-%m-%d < br / > % H: % M: % S ',
+              style: {
+                fontSize: '9px', // 👈 Schriftgröße ändern
+                fontFamily: 'Arial, sans-serif',
+                color: '#333'
+              }
+            },
+            xAxis: {
+              type: 'datetime',
+              ordinal: false,
+              min: Date.UTC(2013, 02, 28),
+              dateTimeLabelFormats: {
+                hour: '%k %p',
+                minute: '%k:%M'
+                //hour: '%l %p',
+                //minute: '%l:%M %p'
+              },
+              labels: {
+                style: {
+                  fontSize: '8px', // Schriftgröße ändern
+                  color: '#333' // optional, Schriftfarbe
+                }
+              },
+              title: {
+                text: null // Titel entfernen
+              }
+            },
+            yAxis: [{
+              title: {
+                //text: 'Temperatur (°C)'
+              },
+              id: 'T',
+              labels: {
+                style: {
+                  fontSize: '8px' // optional Schriftgröße anpassen
+                }
+              }
+            }, {
+              title: {
+                //text: 'Luftfeuchtigkeit (g/m²)'
+              },
+              opposite: false,
+              id: 'H',
+              labels: {
+                align: 'left', // linksbündig innerhalb des Achsenbereichs
+                x: 0, // verschiebt die Achsenwerte nach links
+                y: -2,
+                style: {
+                  fontSize: '8px' // optional Schriftgröße anpassen
+                }
+              }
+            }, {
+              title: {
+                //text: 'Luftdruck'
+              },
+              opposite: false,
+              id: 'P',
+              labels: {
+                align: 'left', // linksbündig innerhalb des Achsenbereichs
+                x: 0, // verschiebt die Achsenwerte nach links
+                y: 11,
+                style: {
+                  fontSize: '8px' // optional Schriftgröße anpassen
+                }
+              }
+            }],
+            exporting: {
+              enabled: true,
+              sourceWidth: 1500,
+              sourceHeight: 1000,
+              scale: 1,
+              csv: {
+                dateFormat: '%d/%m/%Y %H:%M:%S'
+              }
+            },
+            legend: {
+              enabled: true,
+              itemStyle: {
+                fontSize: '8px',
+                fontWeight: 'normal',
+                cursor: 'pointer'
+              },
+              itemHoverStyle: {
+                color: '#000000'
+              },
+              symbolHeight: 8, // Höhe des Legenden-Kästchens
+              symbolWidth: 8, // Breite des Legenden-Kästchens
+              itemMarginTop: 0, // Abstand oberhalb jedes Eintrags
+              itemMarginBottom: 0, // Abstand unterhalb jedes Eintrags
+              y: 20 // verschiebt die Legende näher an den Chart
+            },
+            navigator: {
+              enabled: false,
+              outlineWidth: 0, // Rahmen entfernen
+              maskFill: 'rgba(0,0,0,0)', // Schattierung transparent
+              handles: {
+                backgroundColor: 'transparent',
+                borderColor: 'transparent'
+              }
+            },
+            scrollbar: {
+              enabled: false // Scrollbalken komplett deaktivieren
+            },
+            series: []
+          };
+          // Alle Kanaldaten zum chart hinzufügen
+          for (var channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) // iterate through each channel
+          {
+            for (var fieldIndex = 0; fieldIndex < channelKeys[channelIndex].fieldList.length; fieldIndex++) // add each field
+            {
+              window.console && console.log('Channel ' + channelIndex + ' field ' + fieldIndex);
+              chartOptions.series.push({
+                data: channelKeys[channelIndex].fieldList[fieldIndex].data,
+                index: channelKeys[channelIndex].fieldList[fieldIndex].series,
+                yAxis: channelKeys[channelIndex].fieldList[fieldIndex].axis,
+                //visible:false,
+                name: channelKeys[channelIndex].fieldList[fieldIndex].name
+              });
+            }
+            updateCurrentValues();
+          }
+          // chart zeichnen
+          dynamicChart = new Highcharts.StockChart(chartOptions);
+          // Felder bei Start ausbleden
+          dynamicChart.series[4].hide();
+          dynamicChart.series[5].hide();
+          // Buttons erstellen
+          createSeriesButtons();
+          // Emoji-Updater starten, **nachdem die Daten da sind**
+          updateWeatherEmoji(); // Emoji sofort korrekt setzen
+          startWeatherEmojiUpdater(); // dann jede Minute aktualisieren
+          // update series number to account for the navigator series (The historical series at the bottom) which is the first series.
+          for (var channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) // iterate through each channel
+          {
+            for (var fieldIndex = 0; fieldIndex < channelKeys[channelIndex].fieldList.length; fieldIndex++) // and each field
+            {
+              for (var seriesIndex = 0; seriesIndex < dynamicChart.series.length; seriesIndex++) // compare each series name
+              {
+                if (dynamicChart.series[seriesIndex].name == channelKeys[channelIndex].fieldList[fieldIndex].name) {
+                  channelKeys[channelIndex].fieldList[fieldIndex].series = seriesIndex;
+                }
+              }
+            }
+          }
+          // add all history
+          //dynamicChart.showLoading("Loading History..." );
+          window.console && console.log('Channels: ', channelKeys.length);
+          for (var channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) // iterate through each channel
+          {
+            window.console && console.log('channelIndex: ', channelIndex);
+            (function(channelIndex) {
+              //load only 1 set of 8000 points
+              loadChannelHistory(channelIndex, channelKeys[channelIndex].channelNumber, channelKeys[channelIndex].key, channelKeys[channelIndex].fieldList, 0, 1);
+            })(channelIndex);
+          }
+          // Emoji-Updater starten
+          startWeatherEmojiUpdater();
+        }
+        updateSunTimes(); // einmal sofort
+      });
 
-    // Deutsche Wochentage & Monate
-    const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-    const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
-
-    const dayName = days[now.getDay()];
-    const day = now.getDate();
-    const month = months[now.getMonth()];
-
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const seconds = now.getSeconds().toString().padStart(2, '0');
-
-    const formattedTime = `${hours}:${minutes}:${seconds}`;
-    const formattedDate = `${dayName}, ${day}. ${month}`;
-
-    document.getElementById("clock").innerHTML = `
-        <div style="text-align:right; line-height:0.8;">
-            <span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span><br>
-            <span style="font-size:0.7rem; color:#555;">${formattedDate}</span>
-        </div>
+      function updateClock() {
+        const now = new Date();
+        // Deutsche Wochentage & Monate
+        const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+        const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+        const dayName = days[now.getDay()];
+        const day = now.getDate();
+        const month = months[now.getMonth()];
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const formattedTime = `${hours}:${minutes}:${seconds}`;
+        const formattedDate = `${dayName}, ${day}. ${month}`;
+        document.getElementById("clock").innerHTML = `
+        
+																				<div style="text-align:right; line-height:0.8;">
+																					<span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span>
+																					<br>
+																						<span style="font-size:0.7rem; color:#555;">${formattedDate}</span>
+																					</div>
     `;
-}
-
-// Uhr jede Sekunde aktualisieren
-setInterval(updateClock, 1000);
-updateClock(); // sofort starten
-
-		
-function updateCurrentValues() {
-  let container = document.getElementById("current-values");
-  container.innerHTML = ''; // Leeren vor Neubefüllung
-
-  for (let channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) {
-    const channel = channelKeys[channelIndex];
-
-    for (let i = 0; i < channel.fieldList.length; i++) {
-      const field = channel.fieldList[i];
-      let latestValue = 'n/a';
-
-      if (field.data && field.data.length > 0) {
-        latestValue = field.data[field.data.length - 1][1];
       }
-
-	  //buttonscurrentvalue
-      let box = document.createElement('div');
-      box.style.border = "1px solid #ccc";
-      box.style.padding = "2px";
-      box.style.borderRadius = "5px";
-      box.style.minWidth = "auto";
-      box.style.textAlign = "center";
-      box.style.backgroundColor = "#f9f9f9";
-
-      // Einheit anhängen, falls definiert
-      const unit = field.unit ? ` ${field.unit}` : '';
-      const roundedValue = Number(latestValue).toFixed(1);
-      const unitHTML = field.unit ? `<span style="font-size: 0.6em;">${field.unit}</span>` : '';
-      box.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold;">${roundedValue}${unitHTML}</span><br>
-                      <strong style="font-size: 0.6rem;">${field.name}</strong>`;
-
-		//  Klick-Event auf die Box
-      	// box.addEventListener("click", openCurrentValuesOverlay);
-		
-      container.appendChild(box);
-    }
-  } 
-  updateWeatherEmoji();
-}
-
-		// Overlay öffnen
-function openCurrentValuesOverlay() {
-    const overlay = document.getElementById("current-values-overlay");
-    const overlayContent = document.getElementById("overlay-content");
-    overlayContent.innerHTML = ''; // vorher leeren
-
-    // alle Werte einfügen
-    for (let channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) {
-        const channel = channelKeys[channelIndex];
-        for (let i = 0; i < channel.fieldList.length; i++) {
+      // Uhr jede Sekunde aktualisieren
+      setInterval(updateClock, 1000);
+      updateClock(); // sofort starten
+      function updateCurrentValues() {
+        let container = document.getElementById("current-values");
+        container.innerHTML = ''; // Leeren vor Neubefüllung
+        for (let channelIndex = 0; channelIndex < channelKeys.length; channelIndex++) {
+          const channel = channelKeys[channelIndex];
+          for (let i = 0; i < channel.fieldList.length; i++) {
             const field = channel.fieldList[i];
             let latestValue = 'n/a';
             if (field.data && field.data.length > 0) {
-                latestValue = field.data[field.data.length - 1][1];
+              latestValue = field.data[field.data.length - 1][1];
             }
-            const unitHTML = field.unit ? ` ${field.unit}` : '';
+            // buttons currentvalue
+            let box = document.createElement('div');
+            box.style.border = "1px solid #ccc";
+            box.style.padding = "2px";
+            box.style.borderRadius = "5px";
+            box.style.minWidth = "auto";
+            box.style.textAlign = "center";
+            box.style.backgroundColor = "#f9f9f9";
+            // Einheit anhängen, falls definiert
+            const unit = field.unit ? ` ${field.unit}` : '';
             const roundedValue = Number(latestValue).toFixed(1);
-
-            overlayContent.innerHTML += `
-                <div style="
-                    font-size:2rem;
-                    font-weight:bold;
-                    margin:15px 0;
-                    background-color: rgba(255,255,255,0.1);
-                    padding:15px;
-                    border-radius:10px;
-                ">
-                    ${roundedValue}${unitHTML}<br>
-                    <span style="font-size:1rem; font-weight:normal; color:#ccc;">${field.name}</span>
-                </div>
-            `;
+            const unitHTML = field.unit ? `
+																					<span style="font-size: 0.6em;">${field.unit}</span>` : '';
+            box.innerHTML = `
+																					<span style="font-size: 1.5rem; font-weight: bold;">${roundedValue}${unitHTML}</span>
+																					<br>
+																						<strong style="font-size: 0.6rem;">${field.name}</strong>`;
+            container.appendChild(box);
+          }
         }
-    }
+        updateWeatherEmoji();
+      }
 
-    overlay.style.display = 'block';
-}
+      function updateWeatherEmoji() {
+        const channel = channelKeys[0];
+        if (!channel) return;
+        const tempField = channel.fieldList.find(f => f.field === 1);
+        const humField = channel.fieldList.find(f => f.field === 2);
+        const pressureField = channel.fieldList.find(f => f.field === 8);
+        const rainField = channel.fieldList.find(f => f.field === 7);
+        const tempData = tempField?.data || [];
+        const humData = humField?.data || [];
+        const pressureData = pressureField?.data || [];
+        const rainData = rainField?.data || [];
+        if (!tempData.length || !humData.length || !pressureData.length) {
+          document.getElementById("header-title").innerHTML = `Wetterstation 🌤️`;
+          return;
+        }
+        const latestTemp = tempData.at(-1)[1];
+        const latestHum = humData.at(-1)[1];
+        const latestPressure = pressureData.at(-1)[1];
+        const latestRain = rainData.length ? rainData.at(-1)[1] : 0;
+        let pressureTrend = 0;
+        if (pressureData.length >= 3) {
+          pressureTrend = latestPressure - pressureData.at(-3)[1];
+        }
+        // Konfiguration
+        const rules = [{
+          condition: () => latestTemp <= 0,
+          emoji: "❄️",
+          desc: "Frost oder Schnee"
+        }, {
+          condition: () => latestRain > 0,
+          emoji: "🌧️",
+          desc: "Regen"
+        }, {
+          condition: () => latestHum > 80 && latestTemp < 20,
+          emoji: "☁️",
+          desc: "Wolkig/feucht"
+        }, {
+          condition: () => (latestHum > 60 && latestPressure < 1000) || pressureTrend < -3,
+          emoji: "⛈️",
+          desc: "Gewitter möglich"
+        }, {
+          condition: () => latestTemp > 25 && latestHum < 50,
+          emoji: "☀️",
+          desc: "Sonnig/heiß"
+        }, {
+          condition: () => latestHum >= 50 && latestTemp <= 15,
+          emoji: "🌥️",
+          desc: "Wolkig/kühl"
+        }, ];
+        // Standardwert
+        let emoji = "🌤️";
+        let desc = "Mild / wechselhaft";
+        // Regel suchen, die zutrifft
+        for (const rule of rules) {
+          if (rule.condition()) {
+            emoji = rule.emoji;
+            desc = rule.desc;
+            break;
+          }
+        }
+        // 🌤️ Ausgabe
+        document.getElementById("header-title").innerHTML = `Wetterstation ${emoji}`;
+        document.getElementById("header-title").title = desc; // Tooltip mit Beschreibung
+      }
+      // === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
+      function startWeatherEmojiUpdater() {
+        // Sofort aufrufen, wenn Daten da sind
+        updateWeatherEmoji();
+        // Dann jede Minute aktualisieren
+        setInterval(updateWeatherEmoji, 60000);
+      }
 
-// Overlay schließen
-function closeCurrentValuesOverlay() {
-    document.getElementById("current-values-overlay").style.display = 'none';
-}
-
-// Overlay öffnen beim Klick auf current-values-Boxen
-// document.getElementById("current-values").addEventListener("click", openCurrentValuesOverlay);
-
-
-
-function updateWeatherEmoji() {
-    const channel = channelKeys[0]; // erster Kanal
-
-    const tempField = channel.fieldList.find(f => f.field === 1);
-    const humField = channel.fieldList.find(f => f.field === 2);
-    const pressureField = channel.fieldList.find(f => f.field === 8);
-    const rainField = channel.fieldList.find(f => f.field === 7); // optional
-
-    if (!tempField || !humField || !pressureField) return;
-    if (!tempField.data.length || !humField.data.length || !pressureField.data.length) return;
-
-    const latestTemp = tempField.data[tempField.data.length - 1][1];
-    const latestHum = humField.data[humField.data.length - 1][1];
-    const latestPressure = pressureField.data[pressureField.data.length - 1][1];
-    const latestRain = rainField && rainField.data.length ? rainField.data[rainField.data.length - 1][1] : 0;
-
-    // Berechne Drucktrend (letzte 3 Werte)
-    let pressureTrend = 0;
-    if (pressureField.data.length >= 3) {
-        const n = pressureField.data.length;
-        pressureTrend = latestPressure - pressureField.data[n - 3][1];
-    }
-
-    let emoji = "🌤️"; // Standard mild
-
-    if (latestTemp <= 0) {
-        emoji = "❄️"; // Schnee/Frost
-    } else if (latestRain > 0) {
-        emoji = "🌧️"; // Regen
-    } else if (latestHum > 80 && latestTemp < 20) {
-        emoji = "☁️"; // Wolkig/feucht
-    } else if ((latestHum > 60 && latestPressure < 1000) || pressureTrend < -3) {
-        emoji = "⛈️"; // Gewitter möglich
-    } else if (latestTemp > 25 && latestHum < 50) {
-        emoji = "☀️"; // Sonnig/Heiß
-    } else if (latestHum >= 50 && latestTemp <= 15) {
-        emoji = "🌥️"; // Wolkig/Kühl
-    }
-
-    document.getElementById("header-title").innerHTML = `Wetterstation ${emoji}`;
-}
-
-
-
-// === Wichtiger Schritt: erst nach dem Laden der Daten aufrufen ===
-function startWeatherEmojiUpdater() {
-    // Sofort aufrufen, wenn Daten da sind
-    updateWeatherEmoji();
-    // Dann jede Minute aktualisieren
-    setInterval(updateWeatherEmoji, 60000);
-}
-
-
-      
-function loadOneChannel(){ 
-  // load a channel selected in the popUp menu.
-  var selectedChannel=document.getElementById("Channel Select");
-  var maxLoads=document.getElementById("Loads").value ;
-  var channelIndex = selectedChannel.selectedIndex;
-  loadChannelHistory(channelIndex,channelKeys[channelIndex].channelNumber,channelKeys[channelIndex].key,channelKeys[channelIndex].fieldList,0,maxLoads); 
-} 
-
-// load next 8000 points from a ThingSpeak channel and addPoints to a series
-function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sentNumLoads,maxLoads) {
-   var numLoads=sentNumLoads
-   var fieldList= sentFieldList;
-   var channelIndex = sentChannelIndex;
-   var first_Date = new Date();
-   if (typeof fieldList[0].data[0] != "undefined") first_Date.setTime(fieldList[0].data[0][0]+7*60*60*1000);//adjust for 7 hour difference from GMT (Zulu time)
-   else if (typeof fieldList[1].data[0] != "undefined") first_Date.setTime(fieldList[1].data[0][0]+7*60*60*1000);
-   else if (typeof fieldList[2].data[0] != "undefined") first_Date.setTime(fieldList[2].data[0][0]+7*60*60*1000);
-   else if (typeof fieldList[3].data[0] != "undefined") first_Date.setTime(fieldList[3].data[0][0]+7*60*60*1000);
-   else if (typeof fieldList[4].data[0] != "undefined") first_Date.setTime(fieldList[4].data[0][0]+7*60*60*1000);
-   else if (typeof fieldList[5].data[0] != "undefined") first_Date.setTime(fieldList[5].data[0][0]+7*60*60*1000);
-   else if (typeof fieldList[6].data[0] != "undefined") first_Date.setTime(fieldList[6].data[0][0]+7*60*60*1000);
-   else if (typeof fieldList[7].data[0] != "undefined") first_Date.setTime(fieldList[7].data[0][0]+7*60*60*1000);
-   var end = first_Date.toJSON();
-   window.console && console.log('earliest date:',end);
-   window.console && console.log('sentChannelIndex:',sentChannelIndex);
-   window.console && console.log('numLoads:',numLoads);
-   // get the Channel data with a webservice call
-   $.getJSON('https://api.thingspeak.com/channels/'+channelNumber+'/feed.json?&amp;offset=0&amp;start=2020-01-01T00:00:00;end='+end+';api_key='+key, function(data) 
-   //$.getJSON('https://www.thingspeak.com/channels/'+channelNumber+'/feed.json?callback=?&amp;offset=0&amp;start=2013-01-20T00:00:00;end='+end+';key='+key, function(data) 
-   {
-	   // if no access
-	   if (data == '-1') {
-       $('#chart-container').append('This channel is not public.  To embed charts, the channel must be public or a read key must be specified.');
-       window.console && console.log('Thingspeak Data Loading Error');
-     }
-     for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++)  // iterate through each field
-     {
-       //fieldList[fieldIndex].data =[];
-       for (var h=0; h<data.feeds.length; h++)  // iterate through each feed (data point)
-       {
-         var p = []//new Highcharts.Point();
-         var fieldStr = "data.feeds["+h+"].field"+fieldList[fieldIndex].field;
-		  	 var v = eval(fieldStr);
- 		  	p[0] = getChartDate(data.feeds[h].created_at);
-	 	  	p[1] = parseFloat(v);
-	 	  	// if a numerical value exists add it
-	   		if (!isNaN(parseInt(v))) { fieldList[fieldIndex].data.push(p); }
-       }
-       fieldList[fieldIndex].data.sort(function(a,b){return a[0]-b[0]});
-       dynamicChart.series[fieldList[fieldIndex].series].setData(fieldList[fieldIndex].data,false);
-       //dynamicChart.series[fieldList[fieldIndex].series].addPoint(fieldList[fieldIndex].data,false);
-       //fieldList[fieldIndex].name = eval("data.channel.field"+fieldList[fieldIndex].field);
-       //window.console && console.log('data added to series:',fieldList[fieldIndex].series,fieldList[fieldIndex].data);
-	   }
-     channelKeys[channelIndex].fieldList=fieldList;
-     dynamicChart.redraw()
-     window.console && console.log('channel index:',channelIndex);
-     numLoads++;
-     if (numLoads<maxLoads) {loadChannelHistory(channelIndex,channelNumber,key,fieldList,numLoads,maxLoads);}
-	 });
-}
-
-</script>
-<!-- HTML ################################################################################################################### -->
-<title>Wetterstation</title>
-</head>
-<body style="background-color: white;">
-<!-- Abstand -->
-<div style="height:2px;"></div>
-	
-<!-- Überschrift -->
-<h1 style="display: flex; justify-content: space-between; align-items: center; 
-           font-family: Arial; font-size: 1.8rem; margin: 2px;">
-  <span id="header-title">Wetterstation ⌛</span>
-  <span id="clock" style="font-size: 1.0rem; font-weight: bold; color: #777777;"></span>
-</h1>
-	
-<!-- Trennlinie -->
-<hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
-	
-<!-- Zusatzinfos -->
-<p style="
+      function loadOneChannel() {
+        // einen im Popup-Menü ausgewählten Kanal laden.
+        var selectedChannel = document.getElementById("Channel Select");
+        var maxLoads = document.getElementById("Loads").value;
+        var channelIndex = selectedChannel.selectedIndex;
+        loadChannelHistory(channelIndex, channelKeys[channelIndex].channelNumber, channelKeys[channelIndex].key, channelKeys[channelIndex].fieldList, 0, maxLoads);
+      }
+      // Die nächsten 8000 Punkte aus einem ThingSpeak-Kanal laden und zu einer Reihe hinzufügen
+      function loadChannelHistory(sentChannelIndex, channelNumber, key, sentFieldList, sentNumLoads, maxLoads) {
+        var numLoads = sentNumLoads
+        var fieldList = sentFieldList;
+        var channelIndex = sentChannelIndex;
+        var first_Date = new Date();
+        if (typeof fieldList[0].data[0] != "undefined") first_Date.setTime(fieldList[0].data[0][0] + 7 * 60 * 60 * 1000); //adjust for 7 hour difference from GMT (Zulu time)
+        else if (typeof fieldList[1].data[0] != "undefined") first_Date.setTime(fieldList[1].data[0][0] + 7 * 60 * 60 * 1000);
+        else if (typeof fieldList[2].data[0] != "undefined") first_Date.setTime(fieldList[2].data[0][0] + 7 * 60 * 60 * 1000);
+        else if (typeof fieldList[3].data[0] != "undefined") first_Date.setTime(fieldList[3].data[0][0] + 7 * 60 * 60 * 1000);
+        else if (typeof fieldList[4].data[0] != "undefined") first_Date.setTime(fieldList[4].data[0][0] + 7 * 60 * 60 * 1000);
+        else if (typeof fieldList[5].data[0] != "undefined") first_Date.setTime(fieldList[5].data[0][0] + 7 * 60 * 60 * 1000);
+        else if (typeof fieldList[6].data[0] != "undefined") first_Date.setTime(fieldList[6].data[0][0] + 7 * 60 * 60 * 1000);
+        else if (typeof fieldList[7].data[0] != "undefined") first_Date.setTime(fieldList[7].data[0][0] + 7 * 60 * 60 * 1000);
+        var end = first_Date.toJSON();
+        window.console && console.log('earliest date:', end);
+        window.console && console.log('sentChannelIndex:', sentChannelIndex);
+        window.console && console.log('numLoads:', numLoads);
+        // Die Kanaldaten mit einem Webservice-Aufruf abrufen
+        $.getJSON('https://api.thingspeak.com/channels/' + channelNumber + '/feed.json?&amp;offset=0&amp;start=2020-01-01T00:00:00;end=' + end + ';api_key=' + key, function(data) {
+          // if no access
+          if (data == '-1') {
+            $('#chart-container').append('This channel is not public.  To embed charts, the channel must be public or a read key must be specified.');
+            window.console && console.log('Thingspeak Data Loading Error');
+          }
+          for (var fieldIndex = 0; fieldIndex < fieldList.length; fieldIndex++) // iterate through each field
+          {
+            for (var h = 0; h < data.feeds.length; h++) // iterate through each feed (data point)
+            {
+              var p = [] //new Highcharts.Point();
+              var fieldStr = "data.feeds[" + h + "].field" + fieldList[fieldIndex].field;
+              var v = eval(fieldStr);
+              p[0] = getChartDate(data.feeds[h].created_at);
+              p[1] = parseFloat(v);
+              // if a numerical value exists add it
+              if (!isNaN(parseInt(v))) {
+                fieldList[fieldIndex].data.push(p);
+              }
+            }
+            fieldList[fieldIndex].data.sort(function(a, b) {
+              return a[0] - b[0]
+            });
+            dynamicChart.series[fieldList[fieldIndex].series].setData(fieldList[fieldIndex].data, false);
+          }
+          channelKeys[channelIndex].fieldList = fieldList;
+          dynamicChart.redraw()
+          window.console && console.log('channel index:', channelIndex);
+          numLoads++;
+          if (numLoads < maxLoads) {
+            loadChannelHistory(channelIndex, channelNumber, key, fieldList, numLoads, maxLoads);
+          }
+        });
+      }
+    </script>
+    <!-- HTML ################################################################################################################### -->
+    <title>Wetterstation</title>
+  </head>
+  <body style="background-color: white;">
+    <!-- Abstand -->
+    <div style="height:2px;"></div>
+    <!-- Überschrift -->
+    <h1 style="display: flex; justify-content: space-between; align-items: center; 
+           font-family: Arial; font-size: 1.8rem; margin: 5px;">
+      <span id="header-title">Wetterstation ⌛</span>
+      <span id="clock" style="font-size: 1.0rem; font-weight: bold; color: #777777;"></span>
+    </h1>
+    <!-- Trennlinie -->
+    <hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
+    <!-- Zusatzinfos -->
+    <p style="
   font-size: 0.7rem; 
   font-family: Arial;
   color: #666; 
@@ -755,48 +685,15 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   display: flex; 
   justify-content: space-between;
 ">
-  <span>📍 Hochspeyer, Rheinland-Pfalz - 280 m ü. NN</span>
-  <span id="sun-times" style="font-weight: bold;">🌅 -- | 🌇 -- | -</span>
-</p>
-
-<!-- Felder aktuelle Werte -->
-<div id="current-values" style="font-family: Arial; margin: 2px; gap: 5px;">
-  <!-- Hier werden die aktuellen Werte dynamisch eingefügt -->
-</div>
-<!-- Overlay für große aktuelle Werte -->
-<div id="current-values-overlay" style="
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background-color: rgba(0,0,0,0.85);
-    color:white;
-    z-index:9999;
-    font-family: Arial, sans-serif;
-    overflow:auto;
-    padding-top:10px;
-    box-sizing:border-box;
-    text-align:center;
-">
-    <div id="overlay-content" style="max-width:400px; margin:auto;"></div>
-    <button onclick="closeCurrentValuesOverlay()" style="
-        margin-top:10px;
-        padding:10px 20px;
-        font-size:1rem;
-        border:none;
-        border-radius:8px;
-        background-color:#e6eaff;
-        color:#333;
-        cursor:pointer;
-    ">Schließen</button>
-</div>
-
-
-
-<!-- Chart / Diagramm -->
-<div id="chart-container" style="
+      <span>📍 Hochspeyer, Rheinland-Pfalz - 280 m ü. NN</span>
+      <span id="sun-times" style="font-weight: bold;">🌅 -- | 🌇 -- | -</span>
+    </p>
+    <!-- Felder aktuelle Werte -->
+    <div id="current-values" style="font-family: Arial; margin: 2px; gap: 5px;">
+      <!-- Hier werden die aktuellen Werte dynamisch eingefügt -->
+    </div>
+    <!-- Chart / Diagramm -->
+    <div id="chart-container" style="
   height: 300px;
   display: flex;
   justify-content: center;
@@ -804,77 +701,64 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   text-align: center;
   font-weight: bold;
   color: #444;
-">
-  Daten werden geladen...
-</div>
-
-
-
-<!-- Steuerelemente des Charts - Ausgeblendet -->
-<div id="below chart"> <button style="width: 110px; margin-top: -18px;" value="Hide All"
-	name="Hide All Button"
-	onclick="HideAll();">Alle ausbleden</button><button style="width: 200px; margin-top: -18px;" value="Load More Data"
-	name="Load More Data"
-	onclick="loadOneChannel();">Mehr historische Daten laden</button>
-  <select id="Channel Select">
-  </select>
-  <select id="Loads">
-	<option value="1">1 Datensätze</option>
-	<option value="2">2 Datensätze</option>
-	<option value="3">3 Datensätze</option>
-	<option value="4">4 Datensätze</option>
-	<option value="5">5 Datensätze</option>
-	<option value="6">6 Datensätze</option>
-	<option value="7">7 Datensätze</option>
-	<option value="8">8 Datensätze</option>
-	<option value="9">9 Datensätze</option>
-	<option value="10">10 Datensätze</option>
-	<option value="15">15 Datensätze</option>
-	<option value="20"selected="selected">20 Datensätze</option>
-	<option value="25">25 Datensätze</option>
-	<option value="30">30 Datensätze</option>
-	<option value="40">40 Datensätze</option>
-	<option value="50">50 Datensätze</option>
-  </select>
-  <input id="Update" name="Update" type="checkbox" checked><span style="font-family: Arial;">Daten automatisch nachladen</span> 
-  <span id="Latency" style="font-family: Arial;">(Latency)</span>
-</div>
-    
-<!-- Button für mehr historische Daten -->
-<div style="text-align:center; margin-top: 0;">
-  <button 
-    onclick="loadOneChannel();" 
-    style="padding: 3px 6px; font-size: 0.55rem; border:none; outline:none; border-radius:3px; background-color:#e6eaff; color:#333; cursor:pointer;">
-    Mehr historische Daten laden
-  </button>
-</div>
-
-
-<!-- Trennlinie -->
-<hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
-    
-<!-- Wettervorhersage Widget -->    
-<a class="weatherwidget-io" href="https://forecast7.com/de/49d447d90/hochspeyer/" data-label_1="HOCHSPEYER" data-label_2="WEATHER" data-icons="Climacons Animated" data-mode="Forecast" data-theme="original" data-basecolor="#e6eaff" data-textcolor="#535353" data-highcolor="#a15757" data-lowcolor="#5296f8" >HOCHSPEYER WEATHER</a>
-<script>
-!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-</script>
-
-
-<!-- Impressum Button -->
-<button onclick="
+"> Daten werden geladen... </div>
+    <!-- Steuerelemente des Charts - Ausgeblendet -->
+    <div id="below chart">
+      <button style="width: 110px; margin-top: -18px;" value="Hide All" name="Hide All Button" onclick="HideAll();">Alle ausbleden</button>
+      <button style="width: 200px; margin-top: -18px;" value="Load More Data" name="Load More Data" onclick="loadOneChannel();">Mehr historische Daten laden</button>
+      <select id="Channel Select"></select>
+      <select id="Loads">
+        <option value="1">1 Datensätze</option>
+        <option value="2">2 Datensätze</option>
+        <option value="3">3 Datensätze</option>
+        <option value="4">4 Datensätze</option>
+        <option value="5">5 Datensätze</option>
+        <option value="6">6 Datensätze</option>
+        <option value="7">7 Datensätze</option>
+        <option value="8">8 Datensätze</option>
+        <option value="9">9 Datensätze</option>
+        <option value="10">10 Datensätze</option>
+        <option value="15">15 Datensätze</option>
+        <option value="20" selected="selected">20 Datensätze</option>
+        <option value="25">25 Datensätze</option>
+        <option value="30">30 Datensätze</option>
+        <option value="40">40 Datensätze</option>
+        <option value="50">50 Datensätze</option>
+      </select>
+      <input id="Update" name="Update" type="checkbox" checked>
+      <span style="font-family: Arial;">Daten automatisch nachladen</span>
+      <span id="Latency" style="font-family: Arial;">(Latency)</span>
+    </div>
+    <!-- Button für mehr historische Daten -->
+    <div style="text-align:center; margin-top: 0;">
+      <button onclick="loadOneChannel();" style="padding: 3px 6px; font-size: 0.55rem; border:none; outline:none; border-radius:3px; background-color:#e6eaff; color:#333; cursor:pointer;"> Mehr historische Daten laden </button>
+    </div>
+    <!-- Trennlinie -->
+    <hr style="border: none; border-top: 1px solid #ccc; margin: 5px 0 10px 0;">
+    <!-- Wettervorhersage Widget -->
+    <a class="weatherwidget-io" href="https://forecast7.com/de/49d447d90/hochspeyer/" data-label_1="HOCHSPEYER" data-label_2="WEATHER" data-icons="Climacons Animated" data-mode="Forecast" data-theme="original" data-basecolor="#e6eaff" data-textcolor="#535353" data-highcolor="#a15757" data-lowcolor="#5296f8">HOCHSPEYER WEATHER</a>
+    <script>
+      ! function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (!d.getElementById(id)) {
+          js = d.createElement(s);
+          js.id = id;
+          js.src = 'https://weatherwidget.io/js/widget.min.js';
+          fjs.parentNode.insertBefore(js, fjs);
+        }
+      }(document, 'script', 'weatherwidget-io-js');
+    </script>
+    <!-- Impressum Button -->
+    <button onclick="
     const im = document.getElementById('impressum');
     im.style.display = 'flex';
     im.style.justifyContent = 'center';
     im.style.alignItems = 'center';
-" 
-        style="position:fixed; bottom:-40px; left:50%; transform:translateX(-50%);
+" style="position:fixed; bottom:-40px; left:50%; transform:translateX(-50%);
                border:none; outline:none; border-radius: 3px;
-               font-size:0.9em; color:#666; cursor:pointer;">
-  Impressum
-</button>
-
-<!-- Overlay -->
-<div id="impressum" style="
+               font-size:0.9em; color:#666; cursor:pointer;"> Impressum </button>
+    <!-- Overlay -->
+    <div id="impressum" style="
     display:none;             /* unsichtbar bis Klick */
     position:fixed;
     top:0;
@@ -888,7 +772,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     overflow:auto;
     z-index: 9999;
 ">
-  <div style="
+      <div style="
       background-color: rgba(0,0,0,0.85); /* dunkles Panel wie Debug */
       padding:20px;
       border-radius:10px;
@@ -900,26 +784,24 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
       margin:auto;
       text-align: left;
   ">
-    <h2 style="color:#fff;">Impressum</h2>
-
-    <p><strong>Angaben gemäß § 5 TMG:</strong><br>
-    Jan Gassen<br>
-    Über den Bächelwiesen 1<br>
-    67691 Hochspeyer<br>
-    Deutschland</p>
-
-    <p><strong>Kontakt:</strong><br>
-    jg-pp [at] mail [dot] de<br></p>
-
-    <p style="font-size:0.8rem;"><strong>Haftungsausschluss:</strong><br>
-    Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links.<br>Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.</p>
-
-    <p style="font-size:0.8rem;"><strong>Hinweis:</strong><br>
-    Diese Website ist ein privates / nicht kommerzielles Projekt.</p>
-
-
-    
-    <button onclick="document.getElementById('impressum').style.display='none'" style="
+        <h2 style="color:#fff;">Impressum</h2>
+        <p>
+          <strong>Angaben gemäß § 5 TMG:</strong>
+          <br> Jan Gassen <br> Über den Bächelwiesen 1 <br> 67691 Hochspeyer <br> Deutschland
+        </p>
+        <p>
+          <strong>Kontakt:</strong>
+          <br> jg-pp [at] mail [dot] de <br>
+        </p>
+        <p style="font-size:0.8rem;">
+          <strong>Haftungsausschluss:</strong>
+          <br> Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. <br>Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+        </p>
+        <p style="font-size:0.8rem;">
+          <strong>Hinweis:</strong>
+          <br> Diese Website ist ein privates / nicht kommerzielles Projekt.
+        </p>
+        <button onclick="document.getElementById('impressum').style.display='none'" style="
         margin-top:10px;
         padding:8px 16px;
         font-size:0.9rem;
@@ -929,11 +811,10 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
         color:#fff;
         cursor:pointer;
     ">Schließen</button>
-  </div>
-</div>
-
-<!-- debuginfos -->	
-<button id="debug-toggle" style="
+      </div>
+    </div>
+    <!-- debuginfos -->
+    <button id="debug-toggle" style="
     position: fixed;
     bottom: -40px;
     left: 8px;
@@ -947,7 +828,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     z-index: 9999;
     transition: color 0.2s ease;
 ">debug</button>
-<div id="debug-info" style="
+    <div id="debug-info" style="
     display: none;
     position: fixed;
     bottom: 50px;
@@ -962,109 +843,94 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
     white-space: pre-line;
     max-width: 90vw;
 "></div>
-<script>
-function getDebugInfo() {
-  return [
-    `📱 User agent: ${navigator.userAgent}`,
-    `📏 Viewport: ${window.innerWidth} x ${window.innerHeight}`,
-    `🖥️ Screen: ${screen.width} x ${screen.height}`,
-    `🔤 DPR: ${window.devicePixelRatio}`,
-    `🌐 Orientation: ${screen.orientation?.type || "n/a"}`,
-    `🧭 Platform: ${navigator.platform}`
-  ].join('\n');
-}
-
-const debugInfo = document.getElementById("debug-info");
-const debugButton = document.getElementById("debug-toggle");
-
-debugButton.addEventListener("click", () => {
-  if (debugInfo.style.display === "none") {
-    debugInfo.textContent = getDebugInfo();
-    debugInfo.style.display = "block";
-  } else {
-    debugInfo.style.display = "none";
-  }
-});
-
-window.addEventListener("resize", () => {
-  if (debugInfo.style.display === "block") {
-    debugInfo.textContent = getDebugInfo();
-  }
-});
-
-// Skalierung
-const targetWidth = 412;
-function applyScale() {
-    const scale = window.innerWidth / targetWidth;
-    document.body.style.transform = `scale(${scale})`;
-    document.body.style.transformOrigin = 'top left';
-    document.body.style.width = `${targetWidth}px`;
-    document.body.style.margin = '0';
-}
-
-// sofort anwenden
-applyScale();
-
-// bei Resize erneut anwenden
-window.addEventListener('resize', applyScale);
-
-	
-</script>
-
-	<!-- Felder aktuelle Werte oben -->
-  </body>
-      <style>
-		body {
-		    margin: 0;
-		    padding: 0;
-		    box-sizing: border-box;
-		}
-
-		
-		#current-values {
-		  display: grid;
-		  grid-template-columns: repeat(4, 1fr);
-		  justify-content: center;
-		  gap: 8px;
-		  width: fit-content; /* passt Breite ans Grid an */
-		  margin: 0 auto;     /* zentriert das Grid */
-		  padding: 0 4px;
-		  box-sizing: border-box;
-		}
-		
-		
-		#current-values div {
-		    border: 1px solid #ccc;
-		    padding: 10px;
-		    border-radius: 8px;
-		    text-align: center;
-		    background-color: #f0f0f0;
-		    font-family: Arial, sans-serif;
-			color: black; 
-		    font-size: 1.2em;
-		    box-sizing: border-box;
-		    min-width: 0;           /* sehr wichtig, verhindert Overflow */
-		    overflow-wrap: break-word; /* verhindert, dass Text die Box sprengt */
-		}
-		
-		#current-values strong {
-		    display: block;
-		    font-size: 1em;
-		    margin-bottom: 6px;
-			color: gray; 
-		}
-		
-		#current-values span {
-		    font-size: 1.6em;
-		    font-weight: bold;
-		    color: #333;
-		}
-
-  
-      /* --- Untere Steuerzeile ausblenden --- */
-      #below\ chart {
-        display: none !important;
+    <script>
+      function getDebugInfo() {
+        return [`📱 User agent: ${navigator.userAgent}`, `📏 Viewport: ${window.innerWidth} x ${window.innerHeight}`, `🖥️ Screen: ${screen.width} x ${screen.height}`, `🔤 DPR: ${window.devicePixelRatio}`, `🌐 Orientation: ${screen.orientation?.type || "n/a"}`, `🧭 Platform: ${navigator.platform}`].join('\n');
       }
-      
-    </style>
+      const debugInfo = document.getElementById("debug-info");
+      const debugButton = document.getElementById("debug-toggle");
+      debugButton.addEventListener("click", () => {
+        if (debugInfo.style.display === "none") {
+          debugInfo.textContent = getDebugInfo();
+          debugInfo.style.display = "block";
+        } else {
+          debugInfo.style.display = "none";
+        }
+      });
+      window.addEventListener("resize", () => {
+        if (debugInfo.style.display === "block") {
+          debugInfo.textContent = getDebugInfo();
+        }
+      });
+      // Skalierung
+      const targetWidth = 412;
+
+      function applyScale() {
+        const scale = window.innerWidth / targetWidth;
+        document.body.style.transform = `scale(${scale})`;
+        document.body.style.transformOrigin = 'top left';
+        document.body.style.width = `${targetWidth}px`;
+        document.body.style.margin = '0';
+      }
+      // sofort anwenden
+      applyScale();
+      // bei Resize erneut anwenden
+      window.addEventListener('resize', applyScale);
+    </script>
+    <!-- Felder aktuelle Werte oben -->
+  </body>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    #current-values {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      justify-content: center;
+      gap: 8px;
+      width: fit-content;
+      /* passt Breite ans Grid an */
+      margin: 0 auto;
+      /* zentriert das Grid */
+      padding: 0 4px;
+      box-sizing: border-box;
+    }
+
+    #current-values div {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      color: black;
+      font-size: 1.2em;
+      box-sizing: border-box;
+      min-width: 0;
+      /* sehr wichtig, verhindert Overflow */
+      overflow-wrap: break-word;
+      /* verhindert, dass Text die Box sprengt */
+    }
+
+    #current-values strong {
+      display: block;
+      font-size: 1em;
+      margin-bottom: 6px;
+      color: gray;
+    }
+
+    #current-values span {
+      font-size: 1.6em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    /* --- Untere Steuerzeile ausblenden --- */
+    #below\ chart {
+      display: none !important;
+    }
+  </style>
 </html>
