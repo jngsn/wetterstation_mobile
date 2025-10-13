@@ -138,18 +138,32 @@
   function updateSunTimes() {
       const latitude = 49.744;  // Hochspeyer
       const longitude = 7.713;  // Hochspeyer
-
       const now = new Date();
-      const times = SunCalc.getTimes(now, latitude, longitude);
 
+      const times = SunCalc.getTimes(now, latitude, longitude);
       const sunrise = times.sunrise.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       const sunset  = times.sunset.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const moon = getMoonPhaseEmoji(now);
 
-      document.getElementById("sun-times").innerText = `🌅 ${sunrise} | 🌇 ${sunset}`;
+      document.getElementById("sun-times").innerText = `🌅 ${sunrise} | 🌇 ${sunset} | ${moon}`;
   }
-  updateSunTimes();
 
 
+  function getMoonPhaseEmoji(date = new Date()) {
+      const moonIllum = SunCalc.getMoonIllumination(date);
+      const phase = moonIllum.phase; // 0 = Neumond, 0.25 = erstes Viertel, 0.5 = Vollmond, 0.75 = letztes Viertel
+
+      if (phase < 0.03 || phase > 0.97) return "🌑"; // Neumond
+      else if (phase < 0.22) return "🌒";             // Zunehmender Mond
+      else if (phase < 0.28) return "🌓";             // Erstes Viertel
+      else if (phase < 0.47) return "🌔";             // Zunehmender Mond
+      else if (phase < 0.53) return "🌕";             // Vollmond
+      else if (phase < 0.72) return "🌖";             // Abnehmender Mond
+      else if (phase < 0.78) return "🌗";             // Letztes Viertel
+      else return "🌘";                               // Abnehmender Mond
+  }
+
+  
  // create the chart when all data is loaded
  function createChart() {
 	// specify the chart options
@@ -474,6 +488,8 @@
   // Emoji-Updater starten
     startWeatherEmojiUpdater();
  }
+
+  updateSunTimes();              // einmal sofort
  
 });
 
@@ -740,7 +756,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   justify-content: space-between;
 ">
   <span>📍 Hochspeyer, Rheinland-Pfalz - 280 m ü. NN</span>
-  <span id="sun-times" style="font-weight: bold;">🌅 -- | 🌇 --</span>
+  <span id="sun-times" style="font-weight: bold;">🌅 -- | 🌇 -- | -</span>
 </p>
 
 <!-- Felder aktuelle Werte -->
