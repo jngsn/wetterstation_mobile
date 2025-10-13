@@ -16,6 +16,7 @@
 
 	  
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
@@ -133,6 +134,20 @@
 	 })
    .fail(function() { alert('getJSON request failed! '); });
  }
+
+  function updateSunTimes() {
+      const latitude = 49.744;  // Hochspeyer
+      const longitude = 7.713;  // Hochspeyer
+
+      const now = new Date();
+      const times = SunCalc.getTimes(now, latitude, longitude);
+
+      const sunrise = times.sunrise.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const sunset  = times.sunset.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      document.getElementById("sun-times").innerText = `🌅 ${sunrise} | 🌇 ${sunset}`;
+  }
+  updateSunTimes();
 
 
  // create the chart when all data is loaded
@@ -725,7 +740,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   justify-content: space-between;
 ">
   <span>📍 Hochspeyer, Rheinland-Pfalz - 280 m ü. NN</span>
-  <span>ESP8266, BME280 & MISOL Regenmesser </span>
+  <span id="sun-times" style="font-weight: bold;">🌅 -- | 🌇 --</span>
 </p>
 
 <!-- Felder aktuelle Werte -->
@@ -761,6 +776,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
         cursor:pointer;
     ">Schließen</button>
 </div>
+
 
 
 <!-- Chart / Diagramm -->
@@ -1036,4 +1052,3 @@ window.addEventListener('resize', applyScale);
       
     </style>
 </html>
-
