@@ -411,6 +411,24 @@
             scrollbar: {
               enabled: false // Scrollbalken komplett deaktivieren
             },
+            exporting: {
+                enabled: true,
+                sourceWidth: 1500,
+                sourceHeight: 1000,
+                scale: 1,
+                csv: {
+                    dateFormat: '%d/%m/%Y %H:%M:%S'
+                },
+                menuItemStyle: {
+                    background: 'transparent',  // Hintergrund der Items
+                    color: '#fff',              // Textfarbe
+                    border: 'none'
+                },
+                menuStyle: {
+                    background: 'transparent',  // Hintergrund des gesamten Menüs
+                    border: 'none'
+                }
+            },
             series: []
           };
           // Alle Kanaldaten zum chart hinzufügen
@@ -431,6 +449,8 @@
           }
           // chart zeichnen
           dynamicChart = new Highcharts.StockChart(chartOptions);
+          // Darkmode anwenden, falls aktiviert
+          applyChartDarkMode(darkMode);
           // Felder bei Start ausbleden
           dynamicChart.series[4].hide();
           dynamicChart.series[5].hide();
@@ -469,28 +489,60 @@
         updateSunTimes(); // einmal sofort
       });
 
+      function applyChartDarkMode(on) {
+        if (!dynamicChart) return;
+
+        dynamicChart.update({
+          chart: {
+            backgroundColor: on ? '#121212' : 'white',
+          },
+          xAxis: {
+            labels: { style: { color: on ? '#eaeaea' : '#333' } },
+            lineColor: on ? '#555' : '#ccc',
+            tickColor: on ? '#555' : '#ccc'
+          },
+          yAxis: [{
+            labels: { style: { color: on ? '#eaeaea' : '#333' } },
+            gridLineColor: on ? '#333' : '#e6e6e6'
+          },{
+            labels: { style: { color: on ? '#eaeaea' : '#333' } },
+            gridLineColor: on ? '#333' : '#e6e6e6'
+          },{
+            labels: { style: { color: on ? '#eaeaea' : '#333' } },
+            gridLineColor: on ? '#333' : '#e6e6e6'
+          }],
+          legend: {
+            itemStyle: { color: on ? '#eaeaea' : '#333' },
+            itemHoverStyle: { color: on ? '#fff' : '#000' }
+          }
+        });
+      }
+
+      
       function updateClock() {
         const now = new Date();
-        // Deutsche Wochentage & Monate
-        const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-        const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+        const days = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+        const months = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
         const dayName = days[now.getDay()];
         const day = now.getDate();
         const month = months[now.getMonth()];
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const hours = now.getHours().toString().padStart(2,'0');
+        const minutes = now.getMinutes().toString().padStart(2,'0');
+        const seconds = now.getSeconds().toString().padStart(2,'0');
         const formattedTime = `${hours}:${minutes}:${seconds}`;
         const formattedDate = `${dayName}, ${day}. ${month}`;
+
+        const clockColor = darkMode ? '#eaeaea' : '#333'; // 🔹 Darkmode-abhängig
+
         document.getElementById("clock").innerHTML = `
-        
-																				<div style="text-align:right; line-height:0.8;">
-																					<span style="font-size:1.2rem; font-weight:bold; color:#333;">${formattedTime}</span>
-																					<br>
-																						<span style="font-size:0.7rem; color:#555;">${formattedDate}</span>
-																					</div>
-    `;
+          <div style="text-align:right; line-height:0.8; color:${clockColor};">
+            <span style="font-size:1.2rem; font-weight:bold;">${formattedTime}</span>
+            <br>
+            <span style="font-size:0.7rem;">${formattedDate}</span>
+          </div>
+        `;
       }
+
       // Uhr jede Sekunde aktualisieren
       setInterval(updateClock, 1000);
       updateClock(); // sofort starten
@@ -758,22 +810,99 @@
 " style="position:fixed; bottom:-40px; left:50%; transform:translateX(-50%);
                border:none; outline:none; border-radius: 3px;
                font-size:0.9em; color:#666; cursor:pointer;"> Impressum </button>
-    <!-- GIF Button -->
-    <button id="gif-button" style="
-        position: fixed;
-        bottom: -40px;
-        left: calc(50% + 170px); /* neben Impressum */
-        transform: translateX(-50%);
-        background: transparent;
-        color: transparent;
-        border: none;
-        padding: 4px 8px;
-        font-size: 0.8rem;
-        font-family: sans-serif;
-        cursor: pointer;
-        z-index: 9999;
-    ">.................</button>
+      
+    <!-- Darkmode Umschalter -->
+    <button id="darkmode-toggle" style="position: fixed; bottom: -40px; right: 10px; z-index: 9999;">🌙 Darkmode</button>
 
+
+    <script>
+      const darkToggle = document.getElementById('darkmode-toggle');
+      const currentValues = document.querySelectorAll('#current-values div');
+      const chartCanvas = document.getElementById('chart'); // falls vorhanden
+      const clock = document.getElementById('clock'); // deine Uhr
+
+      // Darkmode-Zustand laden
+      let darkMode = localStorage.getItem('darkMode') === 'true';
+      applyDarkMode(darkMode);
+
+      darkToggle.addEventListener('click', () => {
+          darkMode = !darkMode;
+          localStorage.setItem('darkMode', darkMode);
+
+          // Body + Uhr + Textfarben
+          applyDarkMode(darkMode);
+
+          // Highcharts sofort anpassen
+          applyChartDarkMode(darkMode);
+      });
+
+
+      function applyDarkMode(on) {
+          document.body.style.backgroundColor = on ? '#3b3b3b' : 'white';
+          document.body.style.color = on ? '#eaeaea' : '#333';
+
+          const darkToggle = document.getElementById('darkmode-toggle');
+          darkToggle.textContent = on ? '☀️' : '🌙';
+          darkToggle.style.backgroundColor = 'transparent'; // immer transparent
+          darkToggle.style.border = 'none';
+          darkToggle.style.color = on ? '#eaeaea' : '#666';
+          darkToggle.style.cursor = 'pointer';
+
+          // Alle Texte hell/dunkel färben, außer current-value-Boxen & Buttons
+          document.querySelectorAll('*:not(#current-values):not(#current-values *):not(button)').forEach(el => {
+              el.style.color = on ? '#eaeaea' : '';
+          });
+
+          // Uhrfarbe
+          const clock = document.getElementById('clock');
+          if (clock) clock.style.color = on ? '#eaeaea' : '#000';
+
+          // Highcharts anpassen
+          applyChartDarkMode(on);
+      }
+
+
+
+
+      
+      function applyChartDarkMode(isDark) {
+        if (!dynamicChart) return;
+        dynamicChart.update({
+            chart: {
+                backgroundColor: isDark ? '#3b3b3b' : 'white',
+            },
+            xAxis: {
+                labels: { style: { color: isDark ? '#fff' : '#333' } }
+            },
+            yAxis: [{
+                labels: { style: { color: isDark ? '#fff' : '#333' } }
+            },{
+                labels: { style: { color: isDark ? '#fff' : '#333' } }
+            },{
+                labels: { style: { color: isDark ? '#fff' : '#333' } }
+            }],
+            legend: {
+                itemStyle: { color: isDark ? '#fff' : '#000' },
+                itemHoverStyle: { color: isDark ? '#ccc' : '#000' }
+            }
+        }, true); // true = sofort redraw
+    }
+
+
+      // 🔁 Falls die Uhr periodisch aktualisiert wird, beobachten wir sie:
+      const clockObserver = new MutationObserver(() => {
+        if (darkMode && clock) {
+          clock.style.color = '#eaeaea';
+        }
+      });
+      if (clock) {
+        clockObserver.observe(clock, { childList: true, subtree: true });
+      }
+    </script>
+
+
+
+    
     <!-- GIF Overlay -->
     <div id="gif-overlay" style="
         display:none;
@@ -929,24 +1058,28 @@
     </script>
     
       <!-- Alle Buttons, Overlays, Inhalte … -->
-    <!-- Ende des Bodys -->
+      <!-- GIF -->
     <script>
-      const gifButton = document.getElementById("gif-button");
       const gifOverlay = document.getElementById("gif-overlay");
       const gifClose = document.getElementById("gif-close");
+      const headerTitle = document.getElementById("header-title");
 
-      gifButton.addEventListener("click", () => {
+      // GIF öffnen, wenn auf das Wetter-Icon in der Überschrift geklickt wird
+      headerTitle.addEventListener("click", () => {
           gifOverlay.style.display = "flex";
       });
 
+      // Schließen-Button im Overlay
       gifClose.addEventListener("click", () => {
           gifOverlay.style.display = "none";
       });
 
+      // Klick außerhalb des GIF schließt es ebenfalls
       gifOverlay.addEventListener("click", (e) => {
-          if(e.target === gifOverlay) gifOverlay.style.display = "none";
+          if (e.target === gifOverlay) gifOverlay.style.display = "none";
       });
-      </script>
+    </script>
+  <!-- Ende des Bodys -->
   </body>
 
   <style>
