@@ -452,8 +452,10 @@
           // Darkmode anwenden, falls aktiviert
           applyChartDarkMode(darkMode);
           // Felder bei Start ausbleden
-          dynamicChart.series[4].hide();
-          dynamicChart.series[5].hide();
+			dynamicChart.series[2].hide();
+			dynamicChart.series[3].hide();
+          	dynamicChart.series[4].hide();
+          	dynamicChart.series[5].hide();
           // Buttons erstellen
           createSeriesButtons();
           // Emoji-Updater starten, **nachdem die Daten da sind**
