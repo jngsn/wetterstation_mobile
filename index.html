@@ -856,7 +856,7 @@
       });
 
 
-      /*function applyDarkMode(on) {
+      function applyDarkMode(on) {
           document.body.style.backgroundColor = on ? '#3b3b3b' : 'white';
           document.body.style.color = on ? '#eaeaea' : '#333';
 
@@ -878,37 +878,17 @@
 
           // Highcharts anpassen
           applyChartDarkMode(on);
-      }*/
 
-		function applyDarkMode(on) {
-			  document.body.style.backgroundColor = on ? '#3b3b3b' : '';
-			  document.body.style.color = on ? '#eaeaea' : '';
-			  document.querySelectorAll('input, select, textarea').forEach(el => {
-			    el.style.backgroundColor = on ? '#555' : '';
-			    el.style.color = on ? '#eaeaea' : '';
-			  });
-			  document.querySelectorAll('*:not(#current-values):not(#current-values *):not(button)').forEach(el => {
-			    el.style.color = on ? '#eaeaea' : '';
-			  });
-			  document.querySelectorAll('button').forEach(btn => {
-			    btn.style.backgroundColor = on ? '#555' : '';
-			    btn.style.color = on ? '#eaeaea' : '';
-			  });
-			  const overlay = document.querySelector('.overlay');
-			  if (overlay) overlay.style.backgroundColor = on ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.95)';
-			
-			  // FIX: Impressum-Panel Farben korrekt umschalten
-			  const impressum = document.getElementById('impressum');
-			  if (impressum) {
-			    const panel = impressum.querySelector('div');
-			    if (panel) {
-			      panel.style.backgroundColor = on ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.95)';
-			      panel.style.color = on ? '#fff' : '#000';
-			    }
-			  }
+		  // FIX: Impressum-Panel Farben korrekt umschalten
+		  const impressum = document.getElementById('impressum');
+		  if (impressum) {
+			const panel = impressum.querySelector('div');
+			if (panel) {
+			  panel.style.backgroundColor = on ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.95)';
+			  panel.style.color = on ? '#fff' : '#000';
 			}
-
-
+		  }
+      }
 
 
 
