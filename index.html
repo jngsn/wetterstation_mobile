@@ -879,13 +879,13 @@
           // Highcharts anpassen
           applyChartDarkMode(on);
 
-		  // FIX: Impressum-Panel Farben korrekt umschalten
+		  // Impressum-Panel Farben umschalten
 		  const impressum = document.getElementById('impressum');
 		  if (impressum) {
 			const panel = impressum.querySelector('div');
 			if (panel) {
-			  panel.style.backgroundColor = on ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.95)';
-			  panel.style.color = on ? '#fff' : '#000';
+			  panel.style.backgroundColor = on ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.85)';
+			  panel.style.color = on ? '#fff' : '#fff';
 			}
 		  }
       }
