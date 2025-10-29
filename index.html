@@ -856,9 +856,12 @@
       font-weight: bold;
       color: #666; 
       margin: 0 7px 0 7px;
-      text-align: center;
+      display: flex;
+      justify-content: space-between; /* links und rechts */
+      align-items: center;
     ">
-      Wettervorhersage:
+      <span id="wetter-text">Wettervorhersage</span>
+      <span id="wetter-datum"></span>
     </p>
 
     <script>
@@ -872,16 +875,16 @@
 
       // heute
       const heute = new Date();
-      heute.setDate(heute.getDate());
 
       // In 6 Tagen
       const in6Tagen = new Date();
-      in6Tagen.setDate(in6Tagen.getDate() + 6);
+      in6Tagen.setDate(heute.getDate() + 6);
 
-      // Text setzen
-      document.getElementById("wetter-daten").textContent =
-        `Wettervorhersage ${formatDate(heute)} bis ${formatDate(in6Tagen)}:`;
+      // Datum setzen
+      document.getElementById("wetter-datum").textContent =
+        `${formatDate(heute)} bis ${formatDate(in6Tagen)}`;
     </script>
+
     
     <!-- Wettervorhersage Widget -->
     <a class="weatherwidget-io" href="https://forecast7.com/en/49d447d90/hochspeyer/" 
